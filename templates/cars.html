@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<head><title>AutoDrive - Inventory</title></head>
+<body>
+    <h2>Car Inventory</h2>
+    <a href="/logout">Logout</a>
+    <ul>
+    {% for car in cars %}
+        <li>
+            <strong>{{ car.year }} {{ car.make }} {{ car.model }}</strong> - ${{ car.price }} (Status: {{ car.status }})
+            <a href="/schedule/{{ car.id }}">Book Test Drive</a>
+        </li>
+    {% endfor %}
+    </ul>
+</body>
+</html>
