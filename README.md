@@ -6,7 +6,7 @@ AutoDrive is a modular Flask web application designed for vehicle inventory mana
 
 ## Project Architecture and Team Roles
 
-The system uses a modular blueprint structure to maintain separation of concerns across application components:
+The system uses a 3-Tier layered modular blueprint structure to maintain separation of concerns across application components:
 
 * **Architecture and System Integration Lead (Dakota Paxton):** Application entry point (`app.py`), database setup (`database.py`), virtual environment configuration, and core system integration.
 * **Authentication Lead (Thomas):** User login, session management, and logout logic (`auth.py`).
