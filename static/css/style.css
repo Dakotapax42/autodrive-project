@@ -1,0 +1,135 @@
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f6f9;
+    color: #222;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Navigation */
+
+.navbar {
+    background-color: #14243a;
+    color: white;
+    padding: 20px 8%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo {
+    color: white;
+    font-size: 25px;
+    font-weight: bold;
+    text-decoration: none;
+}
+
+.nav-links {
+    display: flex;
+    gap: 25px;
+}
+
+.nav-links a {
+    color: white;
+    text-decoration: none;
+}
+
+.nav-links a:hover {
+    color: #58a6ff;
+}
+
+/* Main content */
+
+.container {
+    width: 85%;
+    max-width: 1100px;
+    margin: 50px auto;
+    flex: 1;
+}
+
+h1, h2 {
+    margin-bottom: 20px;
+}
+
+/* Buttons */
+
+button, .button {
+    background-color: #1769aa;
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+button:hover, .button:hover {
+    background-color: #10548b;
+}
+
+/* Forms */
+
+form {
+    background: white;
+    padding: 30px;
+    border-radius: 8px;
+    max-width: 450px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+input, select {
+    width: 100%;
+    padding: 12px;
+    margin: 10px 0 20px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+/* Vehicle cards */
+
+.car-card {
+    background: white;
+    padding: 25px;
+    margin-bottom: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+/* Footer */
+
+footer {
+    background-color: #14243a;
+    color: white;
+    text-align: center;
+    padding: 20px;
+}
+.hero {
+    text-align: center;
+    background-color: white;
+    padding: 80px 30px;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.hero h1 {
+    font-size: 36px;
+    margin-bottom: 20px;
+}
+
+.hero p {
+    font-size: 18px;
+    margin-bottom: 20px;
+}
+
+.hero .button {
+    display: inline-block;
+    margin: 10px;
+}
