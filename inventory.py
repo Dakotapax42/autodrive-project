@@ -1,6 +1,5 @@
 from contextlib import closing
-
-from flask import Blueprint, redirect, render_template, request, session, url_for
+from flask import Blueprint, render_template, request, session, url_for
 from database import get_db
 
 inventory_bp = Blueprint("inventory", __name__)
@@ -8,9 +7,8 @@ inventory_bp = Blueprint("inventory", __name__)
 
 @inventory_bp.route("/cars")
 def cars():
-    # Only logged-in users can view the inventory.
-    if "user_id" not in session:
-        return redirect(url_for("auth.login"))
+    # Login check removed! Anyone can browse the inventory now, but then forced to login
+    # if they want to book an appointment
 
     search = request.args.get("search", "").strip()
     category = request.args.get("category", "").strip()
