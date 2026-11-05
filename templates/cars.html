@@ -1,16 +1,57 @@
-<!DOCTYPE html>
-<html>
-<head><title>AutoDrive - Inventory</title></head>
-<body>
-    <h2>Car Inventory</h2>
-    <a href="/logout">Logout</a>
-    <ul>
+
+{% extends "base.html" %}
+
+{% block title %}AutoDrive - Vehicle Inventory{% endblock %}
+
+{% block content %}
+
+<section class="inventory-header">
+    <h1>Explore Our Vehicle Inventory</h1>
+    <p>Find a vehicle that fits your needs and schedule a test drive.</p>
+</section>
+
+<div class="inventory-grid">
+
     {% for car in cars %}
-        <li>
-            <strong>{{ car.year }} {{ car.make }} {{ car.model }}</strong> - ${{ car.price }} (Status: {{ car.status }})
-            <a href="/schedule/{{ car.id }}">Book Test Drive</a>
-        </li>
+
+    <div class="car-card">
+
+        <div class="car-info">
+
+            <h2>{{ car.modelName }}</h2>
+
+            <p class="car-category">
+                Category: {{ car.category }}
+            </p>
+
+            <p class="car-status">
+                Status:
+                <span class="{{ 'available' if car.status == 'Available' else 'unavailable' }}">
+                    {{ car.status }}
+                </span>
+            </p>
+
+            {% if car.status == 'Available' %}
+                <a href="{{ url_for('scheduling.schedule', car_id=car.carID) }}"
+                   class="button">
+                    Book Test Drive
+                </a>
+            {% else %}
+                <button disabled class="unavailable-button">
+                    Currently Unavailable
+                </button>
+            {% endif %}
+
+        </div>
+
+    </div>
+
+    {% else %}
+
+    <p>No vehicles are currently available.</p>
+
     {% endfor %}
-    </ul>
-</body>
-</html>
+
+</div>
+
+{% endblock %}

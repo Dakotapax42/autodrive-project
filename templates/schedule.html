@@ -1,14 +1,70 @@
-<!DOCTYPE html>
-<html>
-<head><title>AutoDrive - Book Test Drive</title></head>
-<body>
-    <h2>Schedule Test Drive for Car #{{ car_id }}</h2>
-    <form method="POST">
-        <label>Appointment Date:</label>
-        <input type="date" name="appt_date" required><br><br>
-        <button type="submit">Confirm Booking</button>
-    </form>
-    <br>
-    <a href="/cars">Back to Inventory</a>
-</body>
-</html>
+{% extends "base.html" %}
+
+{% block title %}AutoDrive - Schedule a Test Drive{% endblock %}
+
+{% block content %}
+
+<section class="schedule-container">
+
+    <div class="schedule-card">
+
+        <h1>Schedule a Test Drive</h1>
+
+        <p class="schedule-subtitle">
+            Choose a date and time for your test drive.
+        </p>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert {{ category }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <div class="vehicle-selection">
+            <h3>Selected Vehicle</h3>
+            <p>Vehicle ID: {{ car_id }}</p>
+        </div>
+
+        <form method="POST"
+              action="{{ url_for('scheduling.schedule', car_id=car_id) }}">
+
+            <label for="appt_date">Appointment Date</label>
+            <input
+                type="date"
+                id="appt_date"
+                name="appt_date"
+                required
+            >
+
+            <label for="timeslot">Preferred Timeslot</label>
+            <select id="timeslot" name="timeslot" required>
+                <option value="">Select a timeslot</option>
+                <option value="9:00 AM">9:00 AM</option>
+                <option value="10:00 AM">10:00 AM</option>
+                <option value="11:00 AM">11:00 AM</option>
+                <option value="1:00 PM">1:00 PM</option>
+                <option value="2:00 PM">2:00 PM</option>
+                <option value="3:00 PM">3:00 PM</option>
+            </select>
+
+            <button type="submit" class="schedule-button">
+                Confirm Booking
+            </button>
+
+        </form>
+
+        <p class="schedule-footer">
+            <a href="{{ url_for('inventory.cars') }}">
+                Back to Vehicle Inventory
+            </a>
+        </p>
+
+    </div>
+
+</section>
+
+{% endblock %}

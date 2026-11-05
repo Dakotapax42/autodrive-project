@@ -133,3 +133,222 @@ footer {
     display: inline-block;
     margin: 10px;
 }
+
+/* Login Page */
+
+.login-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 40px 20px;
+}
+
+.login-card {
+    background-color: white;
+    width: 100%;
+    max-width: 450px;
+    padding: 40px;
+    border-radius: 10px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+}
+
+.login-card h1 {
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+.login-subtitle {
+    text-align: center;
+    color: #666;
+    margin-bottom: 25px;
+}
+
+.login-card form {
+    max-width: 100%;
+    padding: 0;
+    box-shadow: none;
+}
+
+.login-card label {
+    display: block;
+    font-weight: bold;
+    margin-top: 10px;
+}
+
+.login-card input {
+    width: 100%;
+    padding: 12px;
+    margin: 10px 0 20px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.login-button {
+    width: 100%;
+    margin-top: 10px;
+}
+
+.login-footer {
+    text-align: center;
+    margin-top: 25px;
+}
+
+.login-footer a {
+    color: #1769aa;
+    text-decoration: none;
+}
+
+.login-footer a:hover {
+    text-decoration: underline;
+}
+
+.alert {
+    padding: 12px;
+    margin-bottom: 15px;
+    border-radius: 5px;
+    background-color: #f8d7da;
+    color: #842029;
+}
+/* Inventory Page */
+
+.inventory-header {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.inventory-header h1 {
+    margin-bottom: 12px;
+    font-size: 32px;
+}
+
+.inventory-header p {
+    color: #666;
+    font-size: 17px;
+}
+
+.inventory-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 25px;
+}
+
+.car-card {
+    background-color: white;
+    padding: 25px;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    transition: transform 0.2s;
+}
+
+.car-card:hover {
+    transform: translateY(-4px);
+}
+
+.car-info h2 {
+    margin-bottom: 15px;
+    color: #14243a;
+}
+
+.car-category {
+    margin-bottom: 15px;
+    color: #666;
+}
+
+.car-status {
+    margin-bottom: 20px;
+    font-weight: bold;
+}
+
+.available {
+    color: #16803c;
+}
+
+.unavailable {
+    color: #c0392b;
+}
+
+.unavailable-button {
+    background-color: #999;
+    cursor: not-allowed;
+}
+/* Scheduling Page */
+
+.schedule-container {
+    display: flex;
+    justify-content: center;
+    padding: 40px 20px;
+}
+
+.schedule-card {
+    background-color: white;
+    width: 100%;
+    max-width: 550px;
+    padding: 40px;
+    border-radius: 10px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+}
+
+.schedule-card h1 {
+    text-align: center;
+    margin-bottom: 12px;
+    color: #14243a;
+}
+
+.schedule-subtitle {
+    text-align: center;
+    color: #666;
+    margin-bottom: 30px;
+}
+
+.vehicle-selection {
+    background-color: #f4f6f9;
+    padding: 18px;
+    border-radius: 8px;
+    margin-bottom: 25px;
+}
+
+.vehicle-selection h3 {
+    margin-bottom: 8px;
+    color: #14243a;
+}
+
+.schedule-card form {
+    max-width: 100%;
+    padding: 0;
+    box-shadow: none;
+}
+
+.schedule-card label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 8px;
+}
+
+.schedule-card input,
+.schedule-card select {
+    width: 100%;
+    padding: 12px;
+    margin: 8px 0 20px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: white;
+}
+
+.schedule-button {
+    width: 100%;
+    margin-top: 10px;
+}
+
+.schedule-footer {
+    text-align: center;
+    margin-top: 25px;
+}
+
+.schedule-footer a {
+    color: #1769aa;
+    text-decoration: none;
+}
+
+.schedule-footer a:hover {
+    text-decoration: underline;
+}
