@@ -80,11 +80,11 @@ def init_db():
     # Insert sample Customer and Employee profiles
     cursor.execute("""
             INSERT INTO users (username, firstName, lastName, email, password, licenseID, dob, role) 
-            VALUES ('buyer1', 'John', 'Doe', 'john@buyer.com', 'password', 'NY-987654', '1995-04-12', 'Customer')
+            VALUES ('buyer1', 'John', 'Doe', 'john@buyer.com', 'password123', 'NY-987654', '1995-04-12', 'Customer')
         """)
     cursor.execute("""
             INSERT INTO users (username, firstName, lastName, email, password, licenseID, dob, role) 
-            VALUES ('employee1', 'Jane', 'Smith', 'jane@employee.com', 'password', 'NY-123456', '1988-09-20', 'Employee')
+            VALUES ('employee1', 'Jane', 'Smith', 'jane@employee.com', 'admin123', 'NY-123456', '1988-09-20', 'Employee')
         """)
 
     # Seed 20 Pre-Loaded Cars for Inventory

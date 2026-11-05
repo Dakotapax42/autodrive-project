@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -14,12 +13,26 @@
 <body>
 
     <nav class="navbar">
-        <a href="/" class="logo">AutoDrive</a>
+        <a href="{{ url_for('inventory.cars') }}" class="logo">AutoDrive</a>
 
         <div class="nav-links">
-            <a href="/">Home</a>
-            <a href="/cars">Inventory</a>
-            <a href="/login">Login</a>
+            <a href="{{ url_for('inventory.cars') }}">Home</a>
+            <a href="{{ url_for('inventory.cars') }}">Inventory</a>
+
+            {% if session.get('user_id') %}
+                <!-- Dynamic appointment link based on user role -->
+                {% if session.get('role') == 'Employee' %}
+                    <a href="{{ url_for('scheduling.view_appointments') }}">Master Calendar</a>
+                {% else %}
+                    <a href="{{ url_for('scheduling.view_appointments') }}">My Appointments</a>
+                {% endif %}
+
+                <!-- Switch to Logout when authenticated -->
+                <a href="{{ url_for('auth.logout') }}">Logout</a>
+            {% else %}
+                <!-- Show Login when logged out -->
+                <a href="{{ url_for('auth.login') }}">Login</a>
+            {% endif %}
         </div>
     </nav>
 

@@ -4,12 +4,20 @@
 
 {% block content %}
 
+<!-- Success Popup Bubble -->
+{% if success_data %}
+<div class="confirmation-popup">
+    <p>You have successfully scheduled a test drive on <strong>{{ success_data.date }}</strong> at <strong>{{ success_data.timeslot }}</strong> with the <strong>{{ success_data.car_name }}</strong>. Have a nice time!</p>
+    <p style="margin-top: 8px; margin-bottom: 0;">
+        <a href="{{ url_for('scheduling.view_appointments') }}">View My Appointments</a> |
+        <a href="{{ url_for('inventory.cars') }}">Inventory</a>
+    </p>
+</div>
+{% endif %}
+
 <section class="schedule-container">
-
     <div class="schedule-card">
-
         <h1>Schedule a Test Drive</h1>
-
         <p class="schedule-subtitle">
             Choose a date and time for your test drive.
         </p>
@@ -24,21 +32,20 @@
             {% endif %}
         {% endwith %}
 
+        {% if error %}
+            <div class="alert" style="background-color: #f8d7da; color: #842029;">
+                {{ error }}
+            </div>
+        {% endif %}
+
         <div class="vehicle-selection">
             <h3>Selected Vehicle</h3>
             <p>Vehicle ID: {{ car_id }}</p>
         </div>
 
-        <form method="POST"
-              action="{{ url_for('scheduling.schedule', car_id=car_id) }}">
-
+        <form method="POST" action="{{ url_for('scheduling.schedule', car_id=car_id) }}">
             <label for="appt_date">Appointment Date</label>
-            <input
-                type="date"
-                id="appt_date"
-                name="appt_date"
-                required
-            >
+            <input type="date" id="appt_date" name="appt_date" required>
 
             <label for="timeslot">Preferred Timeslot</label>
             <select id="timeslot" name="timeslot" required>
@@ -54,7 +61,6 @@
             <button type="submit" class="schedule-button">
                 Confirm Booking
             </button>
-
         </form>
 
         <p class="schedule-footer">
@@ -62,9 +68,7 @@
                 Back to Vehicle Inventory
             </a>
         </p>
-
     </div>
-
 </section>
 
 {% endblock %}
