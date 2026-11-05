@@ -1,10 +1,28 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>AutoDrive - Welcome</title>
-</head>
-<body>
+
+{% extends "base.html" %}
+
+{% block title %}AutoDrive - Home{% endblock %}
+
+{% block content %}
+
+<section class="hero">
     <h1>Welcome to AutoDrive</h1>
-    <p><a href="/login">Click here to Login</a></p>
-</body>
-</html>
+
+    <p>
+        Find your next vehicle and schedule
+        a test drive with ease.
+    </p>
+
+    <br>
+
+    <a href="/cars" class="button">
+        Browse Vehicles
+    </a>
+
+    <a href="/login" class="button">
+        Login
+    </a>
+</section>
+
+{% endblock %}
+
