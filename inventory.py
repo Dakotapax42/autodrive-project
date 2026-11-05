@@ -1,15 +1,71 @@
+from contextlib import closing
+
+from flask import Blueprint, redirect, render_template, request, session, url_for
 from database import get_db
-from flask import Blueprint, render_template, session
 
 inventory_bp = Blueprint("inventory", __name__)
 
 
-# TODO (Abahoor): Implement vehicle inventory view & search (FR-02)
-# - Route URL: '/cars'
-# - Database Table to query: 'cars' (columns: id, make, model, year, price, status)
 @inventory_bp.route("/cars")
 def cars():
-  # 1. Check if user is logged in ('user_id' in session), else redirect to login
-  # 2. Query all rows from the 'cars' table
-  # 3. Render 'cars.html' and pass the car list into it: render_template('cars.html', cars=car_list)
-  pass
+    # Only logged-in users can view the inventory.
+    if "user_id" not in session:
+        return redirect(url_for("auth.login"))
+
+    search = request.args.get("search", "").strip()
+    category = request.args.get("category", "").strip()
+    status = request.args.get("status", "").strip()
+
+    query = """
+        SELECT carID, modelName, category, image, status
+        FROM cars
+        WHERE 1=1
+    """
+    parameters = []
+
+    if search:
+        escaped = search.replace("!", "!!").replace("%", "!%").replace("_", "!_")
+        query += " AND modelName LIKE ? ESCAPE '!'"
+        parameters.append(f"%{escaped}%")
+
+    if category:
+        query += " AND category = ?"
+        parameters.append(category)
+
+    if status:
+        query += " AND status = ?"
+        parameters.append(status)
+
+    query += " ORDER BY modelName COLLATE NOCASE, carID"
+
+    with closing(get_db()) as conn:
+        car_list = conn.execute(query, parameters).fetchall()
+
+        categories = [
+            row[0]
+            for row in conn.execute(
+                "SELECT DISTINCT category FROM cars ORDER BY category"
+            )
+        ]
+
+        statuses = [
+            row[0]
+            for row in conn.execute(
+                """
+                SELECT DISTINCT status
+                FROM cars
+                WHERE status IS NOT NULL
+                ORDER BY status
+                """
+            )
+        ]
+
+    return render_template(
+        "cars.html",
+        cars=car_list,
+        search=search,
+        category=category,
+        status=status,
+        categories=categories,
+        statuses=statuses,
+    )

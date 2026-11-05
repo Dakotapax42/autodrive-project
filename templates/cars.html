@@ -1,16 +1,80 @@
 <!DOCTYPE html>
-<html>
-<head><title>AutoDrive - Inventory</title></head>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>AutoDrive - Inventory</title>
+</head>
 <body>
-    <h2>Car Inventory</h2>
-    <a href="/logout">Logout</a>
+    <h1>Car Inventory</h1>
+
+    <a href="{{ url_for('auth.logout') }}">Logout</a>
+
+    <form method="get" action="{{ url_for('inventory.cars') }}">
+        <p>
+            <label for="search">Search vehicle name:</label>
+            <input
+                id="search"
+                name="search"
+                value="{{ search }}"
+                placeholder="e.g. Toyota"
+            >
+
+            <label for="category">Category:</label>
+            <select id="category" name="category">
+                <option value="">All categories</option>
+
+                {% if category and category not in categories %}
+                <option selected value="{{ category }}">{{ category }}</option>
+                {% endif %}
+
+                {% for item in categories %}
+                <option value="{{ item }}"
+                    {% if item == category %}selected{% endif %}>
+                    {{ item }}
+                </option>
+                {% endfor %}
+            </select>
+
+            <label for="status">Status:</label>
+            <select id="status" name="status">
+                <option value="">All statuses</option>
+
+                {% if status and status not in statuses %}
+                <option selected value="{{ status }}">{{ status }}</option>
+                {% endif %}
+
+                {% for item in statuses %}
+                <option value="{{ item }}"
+                    {% if item == status %}selected{% endif %}>
+                    {{ item }}
+                </option>
+                {% endfor %}
+            </select>
+
+            <button type="submit">Search</button>
+            <a href="{{ url_for('inventory.cars') }}">Clear filters</a>
+        </p>
+    </form>
+
+    <p>{{ cars|length }} vehicle(s) found.</p>
+
     <ul>
-    {% for car in cars %}
+        {% for car in cars %}
         <li>
-            <strong>{{ car.year }} {{ car.make }} {{ car.model }}</strong> - ${{ car.price }} (Status: {{ car.status }})
-            <a href="/schedule/{{ car.id }}">Book Test Drive</a>
+            <strong>{{ car.modelName }}</strong>
+            — {{ car.category }}
+            (Status: {{ car.status or 'Unknown' }})
+
+            {% if car.status == 'Available' %}
+            <a href="{{ url_for('scheduling.schedule', car_id=car.carID) }}">
+                Book Test Drive
+            </a>
+            {% endif %}
         </li>
-    {% endfor %}
+        {% else %}
+        <li>No vehicles found. Try a different search or clear the filters.</li>
+        {% endfor %}
     </ul>
 </body>
 </html>
