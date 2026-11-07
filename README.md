@@ -20,12 +20,16 @@ The system uses a 3-Tier layered modular blueprint structure to maintain separat
 
 ```text
 autodrive-project/
-├── .venv/                 # Local Python Virtual Environment (git ignored)
+├── .venv/
+├── static/                # Static assets directory
+│   └── style.css          # Global CSS stylesheet for UI styling & layouts
 ├── templates/             # Jinja2 HTML Templates
+│   ├── base.html          # Master layout template (nav, footer, & blocks)
 │   ├── index.html         # Landing page view
 │   ├── login.html         # User authentication form
 │   ├── cars.html          # Vehicle inventory list
-│   └── schedule.html      # Test drive booking form
+│   ├── schedule.html      # Test drive booking form
+│   └── appointments.html  # Appointment management & master calendar view
 ├── .gitignore             # Git ignore configuration
 ├── app.py                 # Main Flask application and blueprint registration
 ├── auth.py                # Authentication blueprint module
