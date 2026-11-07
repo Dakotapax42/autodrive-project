@@ -99,8 +99,8 @@ The database script automatically initializes standard test accounts on launch:
 ---
 ## Notes & Troubleshooting
 
-* Virtual Environment Required:** Always ensure your `.venv` is activated before running scripts or installing packages. If your terminal prompt doesn't start with `(.venv)`, run `.\.venv\Scripts\activate` (Windows) or `source .venv/bin/activate` (Mac/Linux).
-* Database Reset ("Hard Reset"):** If you ever need to wipe your test bookings and restore the database to its pristine default state, simply delete the local `autodrive.db` file and re-run `python database.py`.
+* Virtual Environment Required: Always ensure your `.venv` is activated before running scripts or installing packages. If your terminal prompt doesn't start with `(.venv)`, run `.\.venv\Scripts\activate` (Windows) or `source .venv/bin/activate` (Mac/Linux).
+* Database Reset ("Hard Reset"): If you ever need to wipe your test bookings and restore the database to its pristine default state, simply delete the local `autodrive.db` file and re-run `python database.py`.
 ---
 ## Version Control Guidelines
 
