@@ -76,7 +76,11 @@ Install necessary project dependencies:
 ```bash
 pip install flask
 ```
+Initialize the local SQLite database and pre-seeded test data:
 
+```bash
+python database.py
+```
 ### 3. Execution
 
 Run the local development server:
