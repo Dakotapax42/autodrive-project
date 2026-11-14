@@ -1,5 +1,5 @@
 from contextlib import closing
-from flask import Blueprint, render_template, request, session, url_for
+from flask import Blueprint, render_template, request, url_for
 from database import get_db
 
 inventory_bp = Blueprint("inventory", __name__)
@@ -7,15 +7,11 @@ inventory_bp = Blueprint("inventory", __name__)
 
 @inventory_bp.route("/cars")
 def cars():
-    # Login check removed! Anyone can browse the inventory now, but then forced to login
-    # if they want to book an appointment
-
     search = request.args.get("search", "").strip()
-    category = request.args.get("category", "").strip()
     status = request.args.get("status", "").strip()
 
     query = """
-        SELECT carID, modelName, category, image, status
+        SELECT carID, modelName, category, fuelType, image, status, price, year, mileage
         FROM cars
         WHERE 1=1
     """
@@ -26,10 +22,6 @@ def cars():
         query += " AND modelName LIKE ? ESCAPE '!'"
         parameters.append(f"%{escaped}%")
 
-    if category:
-        query += " AND category = ?"
-        parameters.append(category)
-
     if status:
         query += " AND status = ?"
         parameters.append(status)
@@ -38,13 +30,6 @@ def cars():
 
     with closing(get_db()) as conn:
         car_list = conn.execute(query, parameters).fetchall()
-
-        categories = [
-            row[0]
-            for row in conn.execute(
-                "SELECT DISTINCT category FROM cars ORDER BY category"
-            )
-        ]
 
         statuses = [
             row[0]
@@ -62,8 +47,6 @@ def cars():
         "cars.html",
         cars=car_list,
         search=search,
-        category=category,
         status=status,
-        categories=categories,
         statuses=statuses,
     )

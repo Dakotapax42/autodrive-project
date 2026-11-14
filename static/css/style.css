@@ -378,3 +378,23 @@ footer {
     from { opacity: 0; transform: translateY(-10px); }
     to { opacity: 1; transform: translateY(0); }
 }
+
+
+/* car image resize */
+.car-image-container {
+    width: 100%;
+    height: 180px;
+    background-color: #f8f9fa; /* Clean background to pad out empty space */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    margin-bottom: 15px;
+    overflow: hidden;
+}
+
+.car-img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain; /* Ensures the whole tip-to-tail car fits inside the frame */
+}
