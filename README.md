@@ -20,6 +20,7 @@ autodrive-project/
 ├── .venv/
 ├── static/                # Static assets directory
 │   └── style.css          # Global CSS stylesheet for UI styling & layouts
+│   └── images/            # Car images for vehicle browsing    
 ├── templates/             # Jinja2 HTML Templates
 │   ├── base.html          # Master layout template (nav, footer, & blocks)
 │   ├── index.html         # Landing page view
