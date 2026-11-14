@@ -1,3 +1,4 @@
+from datetime import datetime
 import sqlite3
 
 DB_NAME = "autodrive.db"
@@ -31,14 +32,18 @@ def init_db():
         )
     """)
 
-  # 2. CARS TABLE (Car Inventory)
+  # 2. CARS TABLE (Car Inventory, seperating body type and fuel type)
   cursor.execute("""
         CREATE TABLE IF NOT EXISTS cars (
             carID INTEGER PRIMARY KEY AUTOINCREMENT,
             modelName TEXT NOT NULL,
-            category TEXT NOT NULL,
+            category TEXT NOT NULL,     -- e.g., Sedan, SUV, Truck, Hatchback
+            fuelType TEXT NOT NULL,     -- e.g., Electric, Hybrid, Gas
             image TEXT,
-            status TEXT DEFAULT 'Available'
+            status TEXT DEFAULT 'Available',
+            price REAL NOT NULL,
+            year INTEGER NOT NULL,
+            mileage INTEGER NOT NULL
         )
     """)
 
@@ -59,7 +64,22 @@ def init_db():
         )
     """)
 
-  # 4. PAY_INFO TABLE
+  # 4. INQUIRIES TABLE (Customer Messaging & Employee Response for FR-04)
+  cursor.execute("""
+        CREATE TABLE IF NOT EXISTS inquiries (
+            inquiryID INTEGER PRIMARY KEY AUTOINCREMENT,
+            customerID INTEGER NOT NULL,
+            carID INTEGER NOT NULL,
+            message TEXT NOT NULL,
+            response TEXT,
+            status TEXT DEFAULT 'Pending',
+            dateSubmitted TEXT NOT NULL,
+            FOREIGN KEY (customerID) REFERENCES users(userID),
+            FOREIGN KEY (carID) REFERENCES cars(carID)
+        )
+    """)
+
+  # 5. PAY_INFO TABLE
   cursor.execute("""
         CREATE TABLE IF NOT EXISTS pay_info (
             payID INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -87,37 +107,43 @@ def init_db():
             VALUES ('employee1', 'Jane', 'Smith', 'jane@employee.com', 'admin123', 'NY-123456', '1988-09-20', 'Employee')
         """)
 
-    # Seed 20 Pre-Loaded Cars for Inventory
+    # Seed 20 Pre-Loaded Cars with Body Style, Fuel Type, Price, Year, and Mileage attributes
     cars_data = [
-        ("Tesla Model 3", "Electric", "tesla_model3.jpg", "Available"),
-        ("Ford Mustang Mach-E", "SUV", "mache.jpg", "Available"),
-        ("Chevrolet Bolt EV", "Electric", "bolt_ev.jpg", "Available"),
-        ("Hyundai Ioniq 5", "Electric", "ioniq5.jpg", "Available"),
-        ("Kia EV6", "Electric", "ev6.jpg", "Available"),
-        ("Toyota Prius", "Hybrid", "prius.jpg", "Available"),
-        ("Honda CR-V", "SUV", "crv.jpg", "Available"),
-        ("Toyota Camry", "Sedan", "camry.jpg", "Available"),
-        ("Ford F-150 Lightning", "Truck", "f150_lightning.jpg", "Available"),
-        ("Rivian R1T", "Truck", "rivian_r1t.jpg", "Available"),
-        ("Audi e-tron", "Electric", "etron.jpg", "Available"),
-        ("BMW i4", "Electric", "bmw_i4.jpg", "Available"),
-        ("Mercedes-Benz EQS", "Electric", "eqs.jpg", "Available"),
-        ("Lexus RX", "SUV", "lexus_rx.jpg", "Available"),
-        ("Subaru Outback", "SUV", "outback.jpg", "Available"),
-        ("Mazda CX-5", "SUV", "cx5.jpg", "Available"),
-        ("Volkswagen ID.4", "Electric", "id4.jpg", "Available"),
-        ("Nissan Leaf", "Electric", "nissan_leaf.jpg", "Available"),
-        ("Volvo XC40 Recharge", "SUV", "xc40.jpg", "Available"),
-        ("Lucid Air", "Electric", "lucid_air.jpg", "Available"),
+        ("Tesla Model 3", "Sedan", "Electric", "images/tesla_model3.png", "Available", 38990.0, 2023, 12500),
+        ("Ford Mustang Mach-E", "SUV", "Electric", "images/mache.png", "Available", 42995.0, 2023, 8400),
+        ("Chevrolet Bolt EV", "Hatchback", "Electric", "images/bolt_ev.png", "Available", 26500.0, 2022, 19200),
+        ("Hyundai Ioniq 5", "SUV", "Electric", "images/ioniq5.png", "Available", 41650.0, 2023, 5100),
+        ("Kia EV6", "SUV", "Electric", "images/ev6.png", "Available", 48700.0, 2023, 7300),
+        ("Toyota Prius", "Sedan", "Hybrid", "images/prius.png", "Available", 27950.0, 2023, 3100),
+        ("Honda CR-V", "SUV", "Hybrid", "images/crv.png", "Available", 29500.0, 2022, 24000),
+        ("Toyota Camry", "Sedan", "Hybrid", "images/camry.png", "Available", 26320.0, 2022, 21500),
+        ("Ford F-150 Lightning", "Truck", "Electric", "images/f150_lightning.png", "Available", 55990.0, 2023, 11000),
+        ("Rivian R1T", "Truck", "Electric", "images/rivian_r1t.png", "Available", 73000.0, 2023, 9500),
+        ("Audi e-tron", "SUV", "Electric", "images/etron.png", "Available", 65900.0, 2022, 18000),
+        ("BMW i4", "Sedan", "Electric", "images/bmw_i4.png", "Available", 52200.0, 2023, 6200),
+        ("Mercedes-Benz EQS", "Sedan", "Electric", "images/eqs.png", "Available", 104400.0, 2023, 4000),
+        ("Lexus RX", "SUV", "Hybrid", "images/lexus_rx.png", "Available", 48600.0, 2022, 28000),
+        ("Subaru Outback", "SUV", "Gas", "images/outback.png", "Available", 28395.0, 2022, 31000),
+        ("Mazda CX-5", "SUV", "Gas", "images/cx5.png", "Available", 29300.0, 2023, 14200),
+        ("Volkswagen ID.4", "SUV", "Electric", "images/id4.png", "Available", 38995.0, 2023, 10800),
+        ("Nissan Leaf", "Hatchback", "Electric", "images/nissan_leaf.png", "Available", 28040.0, 2022, 22000),
+        ("Volvo XC40 Recharge", "SUV", "Electric", "images/xc40.png", "Available", 53500.0, 2023, 8900),
+        ("Lucid Air", "Sedan", "Electric", "images/lucid_air.png", "Available", 82400.0, 2023, 3500),
     ]
 
     cursor.executemany(
         """
-            INSERT INTO cars (modelName, category, image, status) 
-            VALUES (?, ?, ?, ?)
+            INSERT INTO cars (modelName, category, fuelType, image, status, price, year, mileage) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
         """,
         cars_data,
     )
+
+    # Seed a sample Customer Inquiry for testing FR-04
+    cursor.execute("""
+            INSERT INTO inquiries (customerID, carID, message, response, status, dateSubmitted)
+            VALUES (1, 1, 'Is this Tesla equipped with Enhanced Autopilot?', 'Yes, it includes standard Autopilot capabilities.', 'Resolved', '2026-03-01')
+        """)
 
     conn.commit()
 
@@ -127,5 +153,6 @@ def init_db():
 if __name__ == "__main__":
   init_db()
   print(
-      "Database 'autodrive.db' initialized with Users, Employees, and 20 cars!"
+      "Database 'autodrive.db' successfully initialized with Users, Cars, Appointments,"
+      " Inquiries, and Pay Info tables!"
   )
