@@ -1,5 +1,5 @@
 from database import get_db
-from flask import Blueprint, redirect, render_template, request, session, url_for
+from flask import Blueprint, flash, redirect, render_template, request, session, url_for
 
 scheduling_bp = Blueprint("scheduling", __name__)
 
@@ -7,8 +7,14 @@ scheduling_bp = Blueprint("scheduling", __name__)
 @scheduling_bp.route("/schedule/<int:car_id>", methods=["GET", "POST"])
 def schedule(car_id):
   # 1. Check if user is logged in ('user_id' in session)
-  if "user_id" not in session:
-    return redirect(url_for("auth.login"))
+  if 'user_id' not in session:
+      flash("Please log in as a customer to book a test drive.", "warning")
+      return redirect(url_for('auth.login'))
+
+      # 2. Block Employees from booking appointments
+  if session.get('role') == 'Employee':
+      flash("Employees cannot schedule test drives. Redirected to Master Calendar.", "danger")
+      return redirect(url_for('scheduling.view_appointments'))
 
   conn = get_db()
   # Fetch car details to display the modelName in the popup

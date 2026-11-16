@@ -36,7 +36,17 @@
         </div>
     </nav>
 
-    <main class="container">
+<main class="container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}" style="padding: 12px; margin-bottom: 16px; border-radius: 6px; font-weight: bold; background-color: {% if category == 'danger' %}#f8d7da; color: #721c24;{% elif category == 'warning' %}#fff3cd; color: #856404;{% else %}#d4edda; color: #155724;{% endif %}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
         {% block content %}
         {% endblock %}
     </main>
