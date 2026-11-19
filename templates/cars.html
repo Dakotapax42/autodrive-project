@@ -9,59 +9,154 @@
     <p>Find a vehicle that fits your needs and schedule a test drive.</p>
 </section>
 
-<div class="inventory-grid">
+{% for message in get_flashed_messages() %}
+    <p role="status">{{ message }}</p>
+{% endfor %}
 
-    {% for car in cars %}
+<form method="get" action="{{ url_for('inventory.cars') }}">
+    <label>
+        Vehicle name
+        <input
+            name="search"
+            value="{{ search }}"
+            placeholder="e.g. Toyota"
+        >
+    </label>
 
-    <div class="car-card">
-        <!-- Image container with tip-to-tail fitting -->
-        <div class="car-image-container">
-            <img src="{{ url_for('static', filename=car['image']) }}" alt="{{ car['modelName'] }}" class="car-img">
-        </div>
+    {% for key, label in [
+        ('category', 'Category'),
+        ('fuelType', 'Fuel type'),
+        ('status', 'Status')
+    ] %}
+        <label>
+            {{ label }}
 
-        <div class="car-info">
-            <h2>{{ car.modelName }}</h2>
+            <select name="{{ key }}">
+                <option value="">All</option>
 
-            <p class="car-details">
-                <strong>Category:</strong> {{ car.category }} | <strong>Fuel:</strong> {{ car.fuelType }}
-            </p>
-
-            <p class="car-specs">
-                <strong>Year:</strong> {{ car.year }} | <strong>Mileage:</strong> {{ car.mileage }} mi
-            </p>
-
-            <p class="car-price">
-                <strong>Price:</strong> ${{ "%.2f"|format(car.price) }}
-            </p>
-
-            <p class="car-status">
-                Status:
-                <span class="{{ 'available' if car.status == 'Available' else 'unavailable' }}">
-                    {{ car.status }}
-                </span>
-            </p>
-
-            {% if car.status == 'Available' %}
-                <a href="{{ url_for('scheduling.schedule', car_id=car.carID) }}"
-                   class="button">
-                    Book Test Drive
-                </a>
-            {% else %}
-                <button disabled class="unavailable-button">
-                    CurrentlyUnavailable
-                </button>
-            {% endif %}
-
-        </div>
-
-    </div>
-
-    {% else %}
-
-    <p class="no-cars">No vehicles are currently available.</p>
-
+                {% for value in choices[key] %}
+                    <option
+                        value="{{ value }}"
+                        {% if value == filters[key] %}selected{% endif %}
+                    >
+                        {{ value }}
+                    </option>
+                {% endfor %}
+            </select>
+        </label>
     {% endfor %}
 
+    <button type="submit">Search</button>
+
+    <a href="{{ url_for('inventory.cars') }}">
+        Clear filters
+    </a>
+</form>
+
+<p>
+    {{ cars|length }}
+    vehicle{{ '' if cars|length == 1 else 's' }} found.
+</p>
+
+{% if session.get('role') == 'Employee' %}
+<p class="inventory-toolbar">
+    <a class="button" href="{{ url_for('inventory.vehicle_form') }}">
+        Add vehicle
+    </a>
+</p>
+{% endif %}
+
+<div class="inventory-grid">
+    {% for car in cars %}
+        <div class="car-card">
+            <div class="car-image-container">
+                {% if car.image %}
+                    <img
+                        src="{{ url_for('static', filename=car.image) }}"
+                        alt="{{ car.modelName }}"
+                        class="car-img"
+                    >
+                {% else %}
+                    No photo
+                {% endif %}
+            </div>
+
+            <div class="car-info">
+                <h2>{{ car.modelName }}</h2>
+
+                <p class="car-details">
+                    <strong>Category:</strong>
+                    {{ car.category }}
+
+                    |
+
+                    <strong>Fuel:</strong>
+                    {{ car.fuelType or 'Unknown' }}
+                </p>
+
+                <p class="car-specs">
+                    <strong>Year:</strong>
+                    {{ car.year if car.year is not none else 'Unknown' }}
+
+                    |
+
+                    <strong>Mileage:</strong>
+
+                    {% if car.mileage is not none %}
+                        {{ car.mileage }} mi
+                    {% else %}
+                        Unknown
+                    {% endif %}
+                </p>
+
+                <p class="car-price">
+                    <strong>Price:</strong>
+
+                    {% if car.price is not none %}
+                        ${{ "%.2f"|format(car.price) }}
+                    {% else %}
+                        Unknown
+                    {% endif %}
+                </p>
+
+                <p class="car-status">
+                    Status:
+
+                    <span
+                        class="{{ 'available' if car.status == 'Available' else 'unavailable' }}"
+                    >
+                        {{ car.status }}
+                    </span>
+                </p>
+
+                {% if car.status == 'Available' %}
+                    <a
+                        href="{{ url_for('scheduling.schedule', car_id=car.carID) }}"
+                        class="button"
+                    >
+                        Book Test Drive
+                    </a>
+                {% else %}
+                    <button disabled class="unavailable-button">
+                        Currently unavailable
+                    </button>
+                {% endif %}
+
+                {% if session.get('role') == 'Employee' %}
+                    <a
+                        href="{{ url_for('inventory.vehicle_form', car_id=car.carID) }}"
+                    >
+                        Manage vehicle
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+
+    {% else %}
+        <p class="no-cars">
+            No vehicles match your search.
+        </p>
+    {% endfor %}
 </div>
 
 {% endblock %}
