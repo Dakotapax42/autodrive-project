@@ -398,3 +398,26 @@ footer {
     max-height: 100%;
     object-fit: contain; /* Ensures the whole tip-to-tail car fits inside the frame */
 }
+
+/* Give the Add vehicle button its own space */
+.inventory-toolbar {
+    margin: 16px 0 24px;
+}
+
+.inventory-toolbar .button {
+    display: inline-block;
+    line-height: 1.4;
+}
+
+/* Put each vehicle action on its own line */
+.car-info > a {
+    display: block;
+    width: fit-content;
+    line-height: 1.4;
+}
+
+/* Leave space between booking and management actions */
+.car-info > .button,
+.car-info > .unavailable-button {
+    margin-bottom: 14px;
+}

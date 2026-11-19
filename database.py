@@ -93,22 +93,8 @@ def init_db():
             FOREIGN KEY (apptID) REFERENCES appointments(apptID)
         )
     """)
-
-  # Seed initial sample data if the tables are empty
-  cursor.execute("SELECT COUNT(*) FROM users")
-  if cursor.fetchone()[0] == 0:
-    # Insert sample Customer and Employee profiles
-    cursor.execute("""
-            INSERT INTO users (username, firstName, lastName, email, password, licenseID, dob, role) 
-            VALUES ('buyer1', 'John', 'Doe', 'john@buyer.com', 'password123', 'NY-987654', '1995-04-12', 'Customer')
-        """)
-    cursor.execute("""
-            INSERT INTO users (username, firstName, lastName, email, password, licenseID, dob, role) 
-            VALUES ('employee1', 'Jane', 'Smith', 'jane@employee.com', 'admin123', 'NY-123456', '1988-09-20', 'Employee')
-        """)
-
-    # Seed 20 Pre-Loaded Cars with Body Style, Fuel Type, Price, Year, and Mileage attributes
-    cars_data = [
+  # Seed 20 Pre-Loaded Cars with Body Style, Fuel Type, Price, Year, and Mileage attributes
+  cars_data = [
         ("Tesla Model 3", "Sedan", "Electric", "images/tesla_model3.png", "Available", 38990.0, 2023, 12500),
         ("Ford Mustang Mach-E", "SUV", "Electric", "images/mache.png", "Available", 42995.0, 2023, 8400),
         ("Chevrolet Bolt EV", "Hatchback", "Electric", "images/bolt_ev.png", "Available", 26500.0, 2022, 19200),
@@ -130,6 +116,110 @@ def init_db():
         ("Volvo XC40 Recharge", "SUV", "Electric", "images/xc40.png", "Available", 53500.0, 2023, 8900),
         ("Lucid Air", "Sedan", "Electric", "images/lucid_air.png", "Available", 82400.0, 2023, 3500),
     ]
+
+    # Upgrade older databases while preserving vehicle IDs and related records.
+  existing = {
+      row["name"]
+      for row in cursor.execute("PRAGMA table_info(cars)")
+  }
+
+  new_fields = {
+      "fuelType": "TEXT",
+      "price": "REAL",
+      "year": "INTEGER",
+      "mileage": "INTEGER",
+  }
+
+  missing = [
+      field
+      for field in new_fields
+      if field not in existing
+  ]
+
+  if missing:
+    cursor.execute("BEGIN")
+
+    for field in missing:
+      cursor.execute(
+          f"ALTER TABLE cars ADD COLUMN {field} {new_fields[field]}"
+      )
+
+    for (
+        model,
+        category,
+        fuel,
+        image,
+        status,
+        price,
+        year,
+        mileage,
+    ) in cars_data:
+      specs = {
+          "fuelType": fuel,
+          "price": price,
+          "year": year,
+          "mileage": mileage,
+      }
+
+      updates = {
+          field: specs[field]
+          for field in missing
+      }
+
+      if "fuelType" in missing:
+        # Original sample vehicles used fuel labels as categories.
+        cursor.execute(
+            """
+            UPDATE cars
+            SET category = ?
+            WHERE modelName = ?
+              AND category IN ('Electric', 'Hybrid')
+            """,
+            (category, model),
+        )
+
+        old_image = (
+            image.split("/")[-1].replace(".png", ".jpg")
+        )
+
+        cursor.execute(
+            """
+            UPDATE cars
+            SET image = ?
+            WHERE modelName = ? AND image = ?
+            """,
+            (image, model, old_image),
+        )
+
+      assignments = ", ".join(
+          f"{field} = ?"
+          for field in updates
+      )
+
+      cursor.execute(
+          f"""
+          UPDATE cars
+          SET {assignments}
+          WHERE modelName = ?
+          """,
+          (*updates.values(), model),
+      )
+
+    conn.commit()
+  # Seed initial sample data if the tables are empty
+  cursor.execute("SELECT COUNT(*) FROM users")
+  if cursor.fetchone()[0] == 0:
+    # Insert sample Customer and Employee profiles
+    cursor.execute("""
+            INSERT INTO users (username, firstName, lastName, email, password, licenseID, dob, role) 
+            VALUES ('buyer1', 'John', 'Doe', 'john@buyer.com', 'password123', 'NY-987654', '1995-04-12', 'Customer')
+        """)
+    cursor.execute("""
+            INSERT INTO users (username, firstName, lastName, email, password, licenseID, dob, role) 
+            VALUES ('employee1', 'Jane', 'Smith', 'jane@employee.com', 'admin123', 'NY-123456', '1988-09-20', 'Employee')
+        """)
+
+
 
     cursor.executemany(
         """

@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+
+{% block title %}
+    {{ 'Edit' if car_id else 'Add' }} vehicle | AutoDrive
+{% endblock %}
+
+{% block content %}
+
+<h1>{{ 'Edit' if car_id else 'Add' }} vehicle</h1>
+
+{% if error %}
+    <p role="alert">{{ error }}</p>
+{% endif %}
+
+<form method="post">
+    <input
+        type="hidden"
+        name="token"
+        value="{{ token }}"
+    >
+
+    {% for key, label in [
+        ('modelName', 'Vehicle name'),
+        ('category', 'Category'),
+        ('fuelType', 'Fuel type'),
+        ('status', 'Status')
+    ] %}
+        <p>
+            <label>
+                {{ label }}
+
+                <input
+                    name="{{ key }}"
+                    value="{{ values.get(key) or '' }}"
+                    required
+                    {% if key == 'status' %}
+                        list="vehicle-statuses"
+                    {% endif %}
+                >
+            </label>
+        </p>
+    {% endfor %}
+
+    <datalist id="vehicle-statuses">
+        <option value="Available"></option>
+        <option value="Unavailable"></option>
+        <option value="Sold"></option>
+    </datalist>
+
+    {% for key, label in [
+        ('price', 'Price ($)'),
+        ('year', 'Model year'),
+        ('mileage', 'Mileage (mi)')
+    ] %}
+        <p>
+            <label>
+                {{ label }}
+
+                <input
+                    type="number"
+                    name="{{ key }}"
+                    required
+                    min="{{ 1886 if key == 'year' else 0 }}"
+                    step="{{ '0.01' if key == 'price' else '1' }}"
+                    value="{{ values[key] if values.get(key) is not none else '' }}"
+                >
+            </label>
+        </p>
+    {% endfor %}
+
+    <p>
+        <label>
+            Photo
+
+            <select name="image">
+                <option value="">No photo</option>
+
+                {% for path in images %}
+                    <option
+                        value="{{ path }}"
+                        {% if values.image == path %}selected{% endif %}
+                    >
+                        {{ path }}
+                    </option>
+                {% endfor %}
+            </select>
+        </label>
+    </p>
+
+    <button type="submit">Save vehicle</button>
+
+    <a href="{{ url_for('inventory.cars') }}">
+        Back to inventory
+    </a>
+</form>
+
+{% if car_id %}
+    <details>
+        <summary>Remove listing</summary>
+
+        <form
+            method="post"
+            action="{{ url_for('inventory.remove_vehicle', car_id=car_id) }}"
+        >
+            <input
+                type="hidden"
+                name="token"
+                value="{{ token }}"
+            >
+
+            <p>Remove this listing from the catalog?</p>
+
+            <button type="submit">
+                Confirm removal
+            </button>
+        </form>
+    </details>
+{% endif %}
+
+{% endblock %}
