@@ -14,18 +14,43 @@
 <body>
 
     <nav class="navbar">
-        <a href="/" class="logo">AutoDrive</a>
+        <a href="{{ url_for('index') }}" class="logo">AutoDrive</a>
 
         <div class="nav-links">
-            <a href="/">Home</a>
-            <a href="/cars">Inventory</a>
-            <a href="/login">Login</a>
+            <a href="{{ url_for('index') }}">Home</a>
+            <a href="{{ url_for('inventory.cars') }}">Inventory</a>
+
+            {% if session.get('user_id') %}
+
+                {% if session.get('role') == 'Employee' %}
+                    <a href="{{ url_for('scheduling.view_appointments') }}">Master Calendar</a>
+                {% else %}
+                    <a href="{{ url_for('scheduling.view_appointments') }}">My Appointments</a>
+                {% endif %}
+
+                <a href="{{ url_for('auth.logout') }}">Logout</a>
+
+            {% else %}
+                <a href="{{ url_for('auth.login') }}">Login</a>
+            {% endif %}
         </div>
     </nav>
 
     <main class="container">
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}" style="padding: 12px; margin-bottom: 16px; border-radius: 6px; font-weight: bold; background-color: {% if category == 'danger' %}#f8d7da; color: #721c24;{% elif category == 'warning' %}#fff3cd; color: #856404;{% else %}#d4edda; color: #155724;{% endif %}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
         {% block content %}
         {% endblock %}
+
     </main>
 
     <footer>

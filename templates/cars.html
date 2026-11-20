@@ -16,12 +16,33 @@
 
     <div class="car-card">
 
+        <div class="car-image-container">
+            {% if car.image %}
+                <img
+                    src="{{ url_for('static', filename=car.image) }}"
+                    alt="{{ car.modelName }}"
+                    class="car-img">
+            {% else %}
+                <p>Image unavailable</p>
+            {% endif %}
+        </div>
+
         <div class="car-info">
 
             <h2>{{ car.modelName }}</h2>
 
-            <p class="car-category">
-                Category: {{ car.category }}
+            <p class="car-details">
+                <strong>Category:</strong> {{ car.category }} |
+                <strong>Fuel:</strong> {{ car.fuelType }}
+            </p>
+
+            <p class="car-specs">
+                <strong>Year:</strong> {{ car.year }} |
+                <strong>Mileage:</strong> {{ car.mileage }} mi
+            </p>
+
+            <p class="car-price">
+                <strong>Price:</strong> ${{ "%.2f"|format(car.price) }}
             </p>
 
             <p class="car-status">
@@ -48,7 +69,7 @@
 
     {% else %}
 
-    <p>No vehicles are currently available.</p>
+    <p class="no-cars">No vehicles are currently available.</p>
 
     {% endfor %}
 

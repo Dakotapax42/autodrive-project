@@ -3,7 +3,6 @@
 AutoDrive is a modular Flask web application designed for vehicle inventory management, user authentication, and test drive appointment scheduling. The project uses Python, Flask Blueprints, and an embedded SQLite database.
 
 ---
-
 ## Project Architecture and Team Roles
 
 The system uses a 3-Tier layered modular blueprint structure to maintain separation of concerns across application components:
@@ -13,19 +12,22 @@ The system uses a 3-Tier layered modular blueprint structure to maintain separat
 * **Inventory Lead (Abahoor):** Vehicle inventory browsing and database query management (`inventory.py`).
 * **Scheduling Lead (Ting):** Test drive reservation logic and appointment conflict checking (`scheduling.py`).
 * **Frontend Lead (Jonathan):** HTML structure, user interfaces, and Jinja2 templates (`templates/`).
-
 ---
-
 ## Repository Structure
 
 ```text
 autodrive-project/
-├── .venv/                 # Local Python Virtual Environment (git ignored)
+├── .venv/
+├── static/                # Static assets directory
+│   └── style.css          # Global CSS stylesheet for UI styling & layouts
+│   └── images/            # Car images for vehicle browsing    
 ├── templates/             # Jinja2 HTML Templates
+│   ├── base.html          # Master layout template (nav, footer, & blocks)
 │   ├── index.html         # Landing page view
 │   ├── login.html         # User authentication form
 │   ├── cars.html          # Vehicle inventory list
-│   └── schedule.html      # Test drive booking form
+│   ├── schedule.html      # Test drive booking form
+│   └── appointments.html  # Appointment management & master calendar view
 ├── .gitignore             # Git ignore configuration
 ├── app.py                 # Main Flask application and blueprint registration
 ├── auth.py                # Authentication blueprint module
@@ -37,7 +39,6 @@ autodrive-project/
 ```
 
 ---
-
 ## Setup and Installation
 
 ### 1. Prerequisites
@@ -72,7 +73,11 @@ Install necessary project dependencies:
 ```bash
 pip install flask
 ```
+Initialize the local SQLite database and pre-seeded test data:
 
+```bash
+python database.py
+```
 ### 3. Execution
 
 Run the local development server:
@@ -84,7 +89,6 @@ python app.py
 Access the application in a web browser at `http://127.0.0.1:5000/`.
 
 ---
-
 ## Pre-seeded Test Credentials
 
 The database script automatically initializes standard test accounts on launch:
@@ -93,9 +97,12 @@ The database script automatically initializes standard test accounts on launch:
 | :--- | :--- | :--- |
 | Customer | buyer1 | password123 |
 | Employee | employee1 | admin123 |
-
 ---
+## Notes & Troubleshooting
 
+* Virtual Environment Required: Always ensure your `.venv` is activated before running scripts or installing packages. If your terminal prompt doesn't start with `(.venv)`, run `.\.venv\Scripts\activate` (Windows) or `source .venv/bin/activate` (Mac/Linux).
+* Database Reset ("Hard Reset"): If you ever need to wipe your test bookings and restore the database to its pristine default state, simply delete the local `autodrive.db` file and re-run `python database.py`.
+---
 ## Version Control Guidelines
 
 * Do not commit local environment directories (`.venv/`) or database files (`autodrive.db`).
