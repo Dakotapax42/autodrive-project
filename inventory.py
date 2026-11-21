@@ -1,20 +1,25 @@
+
 from contextlib import closing
-from flask import Blueprint, render_template, request, url_for
+from flask import Blueprint, render_template, request
 from database import get_db
 
 inventory_bp = Blueprint("inventory", __name__)
+
 
 
 @inventory_bp.route("/cars")
 def cars():
     search = request.args.get("search", "").strip()
     status = request.args.get("status", "").strip()
+    category = request.args.get("category", "").strip()
 
     query = """
-        SELECT carID, modelName, category, fuelType, image, status, price, year, mileage
+        SELECT carID, modelName, category, fuelType, image,
+               status, price, year, mileage
         FROM cars
         WHERE 1=1
     """
+
     parameters = []
 
     if search:
@@ -26,21 +31,29 @@ def cars():
         query += " AND status = ?"
         parameters.append(status)
 
+    if category:
+        query += " AND category = ?"
+        parameters.append(category)
+
     query += " ORDER BY modelName COLLATE NOCASE, carID"
 
     with closing(get_db()) as conn:
         car_list = conn.execute(query, parameters).fetchall()
 
         statuses = [
-            row[0]
-            for row in conn.execute(
-                """
-                SELECT DISTINCT status
-                FROM cars
+            row[0] for row in conn.execute("""
+                SELECT DISTINCT status FROM cars
                 WHERE status IS NOT NULL
                 ORDER BY status
-                """
-            )
+            """)
+        ]
+
+        categories = [
+            row[0] for row in conn.execute("""
+                SELECT DISTINCT category FROM cars
+                WHERE category IS NOT NULL
+                ORDER BY category
+            """)
         ]
 
     return render_template(
@@ -49,4 +62,7 @@ def cars():
         search=search,
         status=status,
         statuses=statuses,
+        category=category,
+        categories=categories
     )
+
