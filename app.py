@@ -1,12 +1,18 @@
+import os
+import secrets
 
 from flask import Flask, render_template
-from database import init_db, get_db
+
+from database import init_db
 from auth import auth_bp
 from inventory import inventory_bp
 from scheduling import scheduling_bp
 
 app = Flask(__name__)
-app.secret_key = "autodrive_secret_key_change_in_production"
+app.secret_key = (os.environ.get("AUTODRIVE_SECRET_KEY") or secrets.token_hex(32))
+
+# Create the tables before authentication reads the users table.
+init_db()
 
 # Automatically ensure tables and 20 cars exist on startup
 init_db()
@@ -14,6 +20,7 @@ init_db()
 app.register_blueprint(auth_bp)
 app.register_blueprint(inventory_bp)
 app.register_blueprint(scheduling_bp)
+
 
 
 @app.route("/")
