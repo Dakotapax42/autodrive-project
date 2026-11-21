@@ -1,3 +1,4 @@
+
 {% extends "base.html" %}
 
 {% block title %}AutoDrive - Login{% endblock %}
@@ -14,6 +15,11 @@
             Sign in to your AutoDrive account.
         </p>
 
+        {% if error %}
+            <div class="alert">
+                {{ error }}
+            </div>
+        {% endif %}
 
         <form method="POST" action="{{ url_for('auth.login') }}">
 
@@ -43,7 +49,7 @@
 
         <p class="login-footer">
             Don't have an account?
-            <a href="/">Return to Home</a>
+            <a href="{{ url_for('home') }}">Return to Home</a>
         </p>
 
     </div>
@@ -51,3 +57,4 @@
 </div>
 
 {% endblock %}
+
