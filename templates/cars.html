@@ -9,7 +9,38 @@
     <h1>Explore Our Vehicle Inventory</h1>
     <p>Find a vehicle that fits your needs and schedule a test drive.</p>
 </section>
+<form method="GET" action="{{ url_for('inventory.cars') }}" class="inventory-filters">
 
+    <input
+        type="text"
+        name="search"
+        placeholder="Search vehicles..."
+        value="{{ search }}">
+    <select name="category">
+        <option value="">All Categories</option>
+
+        {% for item in categories %}
+            <option value="{{ item }}"
+                {% if category == item %}selected{% endif %}>
+                {{ item }}
+            </option>
+        {% endfor %}
+    </select>
+    <select name="status">
+        <option value="">All Statuses</option>
+
+        {% for item in statuses %}
+            <option value="{{ item }}" {% if status == item %}selected{% endif %}>
+                {{ item }}
+            </option>
+        {% endfor %}
+    </select>
+
+    <button type="submit" class="button">Search / Filter</button>
+
+    <a href="{{ url_for('inventory.cars') }}">Clear</a>
+
+</form>
 <div class="inventory-grid">
 
     {% for car in cars %}
@@ -40,9 +71,13 @@
                 <strong>Year:</strong> {{ car.year }} |
                 <strong>Mileage:</strong> {{ car.mileage }} mi
             </p>
-
             <p class="car-price">
-                <strong>Price:</strong> ${{ "%.2f"|format(car.price) }}
+            <strong>Price:</strong>
+                {% if car.price is not none %}
+                    ${{ "%.2f"|format(car.price) }}
+                {% else %}
+                    Price unavailable
+                {% endif %}
             </p>
 
             <p class="car-status">

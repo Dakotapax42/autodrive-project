@@ -1,27 +1,134 @@
 
 {% extends "base.html" %}
 
-{% block title %}AutoDrive - Home{% endblock %}
+{% block title %}AutoDrive - Find Your Next Vehicle{% endblock %}
 
 {% block content %}
 
-<section class="hero">
-    <h1>Welcome to AutoDrive</h1>
+<section class="home-hero">
 
-    <p>
-        Find your next vehicle and schedule
-        a test drive with ease.
-    </p>
+    <div class="hero-content">
+        <span class="hero-label">WELCOME TO AUTODRIVE</span>
 
-    <br>
+        <h1>Find the Drive<br>That's Right for You.</h1>
 
-    <a href="/cars" class="button">
-        Browse Vehicles
-    </a>
+        <p>
+            Explore our vehicle inventory, discover your next car,
+            and book a test drive with ease.
+        </p>
 
-    <a href="/login" class="button">
-        Login
-    </a>
+        <div class="hero-buttons">
+            <a href="{{ url_for('inventory.cars') }}" class="button">
+                Explore Inventory
+            </a>
+
+            <a href="{{ url_for('auth.login') }}" class="button hero-secondary">
+                Sign In
+            </a>
+        </div>
+    </div>
+
+    {% if featured_cars %}
+    <div class="hero-image">
+        <img
+            src="{{ url_for('static', filename=featured_cars[0].image) }}"
+            alt="{{ featured_cars[0].modelName }}">
+    </div>
+    {% endif %}
+
+</section>
+
+
+<section class="featured-section">
+
+    <div class="section-heading">
+        <span>OUR INVENTORY</span>
+        <h2>Explore Featured Vehicles</h2>
+        <p>Take a look at some of the vehicles available at AutoDrive.</p>
+    </div>
+
+    <div class="featured-grid">
+
+        {% for car in featured_cars %}
+
+        <div class="featured-card">
+
+            {% if car.image %}
+            <img
+                src="{{ url_for('static', filename=car.image) }}"
+                alt="{{ car.modelName }}">
+            {% endif %}
+
+            <div class="featured-info">
+                <h3>{{ car.modelName }}</h3>
+
+                <p>{{ car.year }} | {{ car.category }}</p>
+
+                {% if car.price is not none %}
+                <strong>${{ "{:,.2f}".format(car.price) }}</strong>
+                {% else %}
+                <strong>Price unavailable</strong>
+                {% endif %}
+
+                <a href="{{ url_for('inventory.cars') }}" class="featured-link">
+                    View Vehicle →
+                </a>
+            </div>
+
+        </div>
+
+        {% else %}
+
+        <p>No featured vehicles available right now.</p>
+
+        {% endfor %}
+
+    </div>
+
+    <div class="featured-footer">
+        <a href="{{ url_for('inventory.cars') }}" class="button">
+            View All Vehicles
+        </a>
+    </div>
+
+</section>
+
+
+<section class="why-autodrive">
+
+    <div class="section-heading">
+        <span>THE AUTODRIVE EXPERIENCE</span>
+        <h2>Why Choose AutoDrive?</h2>
+    </div>
+
+    <div class="benefits-grid">
+
+        <div class="benefit-card">
+            <h3>Wide Vehicle Selection</h3>
+            <p>
+                Explore a variety of vehicles to find one that
+                matches your needs.
+            </p>
+        </div>
+
+        <div class="benefit-card">
+            <h3>Easy Test Drive Booking</h3>
+            <p>
+                Find available appointment times and reserve
+                your test drive online.
+            </p>
+        </div>
+
+        <div class="benefit-card">
+            <h3>Convenient Scheduling</h3>
+            <p>
+                View your appointments and manage your
+                bookings in one place.
+            </p>
+        </div>
+
+    </div>
+
 </section>
 
 {% endblock %}

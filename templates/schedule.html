@@ -5,72 +5,163 @@
 
 {% block content %}
 
-<!-- Success Popup Bubble -->
 {% if success_data %}
 <div class="confirmation-popup">
     <p>
-        You have successfully scheduled a test drive on
+        You successfully scheduled a test drive on
         <strong>{{ success_data.date }}</strong> at
-        <strong>{{ success_data.timeslot }}</strong> with the
-        <strong>{{ success_data.car_name }}</strong>. Have a nice time!
+        <strong>{{ success_data.timeslot }}</strong> with
+        <strong>{{ success_data.car_name }}</strong>!
     </p>
 
-    <p style="margin-top: 8px; margin-bottom: 0;">
-        <a href="{{ url_for('scheduling.view_appointments') }}">View My Appointments</a> |
-        <a href="{{ url_for('inventory.cars') }}">Inventory</a>
-    </p>
+    <a href="{{ url_for('scheduling.view_appointments') }}">
+        View My Appointments
+    </a>
+    |
+    <a href="{{ url_for('inventory.cars') }}">Inventory</a>
 </div>
 {% endif %}
 
 <section class="schedule-container">
-
     <div class="schedule-card">
 
         <h1>Schedule a Test Drive</h1>
-
         <p class="schedule-subtitle">
             Choose a date and time for your test drive.
         </p>
 
         {% if error %}
-            <div class="alert">
-                {{ error }}
-            </div>
+        <div class="alert alert-danger">
+            {{ error }}
+        </div>
         {% endif %}
 
         <div class="vehicle-selection">
             <h3>Selected Vehicle</h3>
-            <p>Vehicle ID: {{ car_id }}</p>
+            <p>{{ car.modelName }}</p>
         </div>
+
+        <div class="calendar-container">
+
+            <div class="calendar-heading">
+                <a href="{{ url_for('scheduling.schedule',
+                    car_id=car_id, month=previous_month) }}">
+                    &#10094;
+                </a>
+
+                <h2>{{ month_name }}</h2>
+
+                <a href="{{ url_for('scheduling.schedule',
+                    car_id=car_id, month=next_month) }}">
+                    &#10095;
+                </a>
+            </div>
+
+            <div class="calendar-grid">
+
+                {% for weekday in
+                    ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'] %}
+                    <div class="calendar-weekday">
+                        {{ weekday }}
+                    </div>
+                {% endfor %}
+
+                {% for week in calendar_rows %}
+                    {% for day in week %}
+
+                        {% if day %}
+                            {% if day.availability == 'past' %}
+                                <div class="calendar-day past">
+                                    {{ day.day }}
+                                </div>
+                            {% else %}
+                                <a href="{{ url_for(
+                                    'scheduling.schedule',
+                                    car_id=car_id,
+                                    month=current_month,
+                                    date=day.date
+                                ) }}"
+                                class="calendar-day {{ day.availability }}
+                                {% if day.selected %}selected{% endif %}">
+                                    {{ day.day }}
+                                </a>
+                            {% endif %}
+                        {% else %}
+                            <div class="calendar-day empty"></div>
+                        {% endif %}
+
+                    {% endfor %}
+                {% endfor %}
+
+            </div>
+
+            <div class="calendar-legend">
+                <span class="legend-available">Available</span>
+                <span class="legend-full">Fully Booked</span>
+                <span class="legend-selected">Selected</span>
+            </div>
+
+        </div>
+
+        {% if selected_date %}
 
         <form method="POST"
               action="{{ url_for('scheduling.schedule', car_id=car_id) }}">
 
-            <label for="appt_date">Appointment Date</label>
-            <input
-                type="date"
-                id="appt_date"
-                name="appt_date"
-                required
-            >
+            <input type="hidden" name="appt_date"
+                   value="{{ selected_date }}">
 
-            <label for="timeslot">Preferred Timeslot</label>
+            <input type="hidden" name="month"
+                   value="{{ current_month }}">
 
-            <select id="timeslot" name="timeslot" required>
-                <option value="">Select a timeslot</option>
-                <option value="9:00 AM">9:00 AM</option>
-                <option value="10:00 AM">10:00 AM</option>
-                <option value="11:00 AM">11:00 AM</option>
-                <option value="1:00 PM">1:00 PM</option>
-                <option value="2:00 PM">2:00 PM</option>
-                <option value="3:00 PM">3:00 PM</option>
-            </select>
+            <h3 class="timeslot-heading">
+                Available Times - {{ selected_date }}
+            </h3>
+
+            <div class="timeslot-grid">
+
+                {% for slot in slot_options %}
+
+                    <label class="timeslot-option
+                        {% if slot.booked %}booked{% endif %}
+                        {% if slot.selected %}chosen{% endif %}">
+
+                        <input
+                            type="radio"
+                            name="timeslot"
+                            value="{{ slot.time }}"
+                            {% if slot.booked %}disabled{% endif %}
+                            {% if slot.selected %}checked{% endif %}
+                            required
+                        >
+
+                        <span>{{ slot.time }}</span>
+
+                        {% if slot.booked %}
+                            <small>Booked</small>
+                        {% else %}
+                            <small>Available</small>
+                        {% endif %}
+
+                    </label>
+
+                {% endfor %}
+
+            </div>
 
             <button type="submit" class="schedule-button">
                 Confirm Booking
             </button>
 
         </form>
+
+        {% else %}
+
+        <p class="calendar-instruction">
+            Select a green date to view available appointment times.
+        </p>
+
+        {% endif %}
 
         <p class="schedule-footer">
             <a href="{{ url_for('inventory.cars') }}">
@@ -79,7 +170,7 @@
         </p>
 
     </div>
-
 </section>
 
 {% endblock %}
+
