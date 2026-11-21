@@ -15,7 +15,6 @@ body {
 }
 
 /* Navigation */
-
 .navbar {
     background-color: #14243a;
     color: white;
@@ -47,7 +46,6 @@ body {
 }
 
 /* Main content */
-
 .container {
     width: 85%;
     max-width: 1100px;
@@ -60,7 +58,6 @@ h1, h2 {
 }
 
 /* Buttons */
-
 button, .button {
     background-color: #1769aa;
     color: white;
@@ -76,7 +73,6 @@ button:hover, .button:hover {
 }
 
 /* Forms */
-
 form {
     background: white;
     padding: 30px;
@@ -94,7 +90,6 @@ input, select {
 }
 
 /* Vehicle cards */
-
 .car-card {
     background: white;
     padding: 25px;
@@ -104,13 +99,14 @@ input, select {
 }
 
 /* Footer */
-
 footer {
     background-color: #14243a;
     color: white;
     text-align: center;
     padding: 20px;
 }
+
+/* Homepage */
 .hero {
     text-align: center;
     background-color: white;
@@ -135,7 +131,6 @@ footer {
 }
 
 /* Login Page */
-
 .login-container {
     display: flex;
     justify-content: center;
@@ -209,8 +204,8 @@ footer {
     background-color: #f8d7da;
     color: #842029;
 }
-/* Inventory Page */
 
+/* Inventory Page */
 .inventory-header {
     text-align: center;
     margin-bottom: 40px;
@@ -271,8 +266,8 @@ footer {
     background-color: #999;
     cursor: not-allowed;
 }
-/* Scheduling Page */
 
+/* Scheduling Page */
 .schedule-container {
     display: flex;
     justify-content: center;
@@ -353,10 +348,10 @@ footer {
     text-decoration: underline;
 }
 
-/* Confirmation Popup Bubble */
+/* Confirmation Popup */
 .confirmation-popup {
     position: fixed;
-    top: 85px; /* Pushed down below the navbar */
+    top: 85px;
     right: 20px;
     background-color: #28a745;
     color: white;
@@ -375,16 +370,21 @@ footer {
 }
 
 @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(-10px); }
-    to { opacity: 1; transform: translateY(0); }
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
-
-/* car image resize */
+/* Vehicle image sizing */
 .car-image-container {
     width: 100%;
     height: 180px;
-    background-color: #f8f9fa; /* Clean background to pad out empty space */
+    background-color: #f8f9fa;
     display: flex;
     align-items: center;
     justify-content: center;

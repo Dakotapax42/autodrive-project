@@ -1,69 +1,158 @@
+
 {% extends "base.html" %}
 
-{% block title %}AutoDrive - Appointments{% endblock %}
+{% block title %}AutoDrive - My Appointments{% endblock %}
 
 {% block content %}
-<section class="schedule-container">
-    <div class="schedule-card" style="max-width: 850px;">
+
+<section class="appointments-container">
+
+    <div class="appointments-header">
+        <span class="appointments-label">AUTODRIVE</span>
+
         <h1>Appointment Management</h1>
-        <p class="schedule-subtitle">
+
+        <p>
             {% if role == 'Employee' %}
-                Master Calendar: Viewing all dealership bookings.
+                Manage and review all dealership test drive bookings.
             {% else %}
-                Viewing your scheduled test drives.
+                View and manage your scheduled test drives.
             {% endif %}
         </p>
-
-        <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
-            <thead>
-                <tr style="border-bottom: 2px solid #14243a; text-align: left; padding: 10px;">
-                    <th style="padding: 10px;">ID</th>
-                    {% if role == 'Employee' %}
-                        <th style="padding: 10px;">Customer</th>
-                    {% endif %}
-                    <th style="padding: 10px;">Vehicle</th>
-                    <th style="padding: 10px;">Date</th>
-                    <th style="padding: 10px;">Time Slot</th>
-                    <th style="padding: 10px;">Status</th>
-                    <th style="padding: 10px;">Action</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for appt in appointments %}
-                <tr style="border-bottom: 1px solid #ccc;">
-                    <td style="padding: 10px;">#{{ appt.apptID }}</td>
-                    {% if role == 'Employee' %}
-                        <td style="padding: 10px;">{{ appt.customerName }}</td>
-                    {% endif %}
-                    <td style="padding: 10px;">{{ appt.modelName }}</td>
-                    <td style="padding: 10px;">{{ appt.date }}</td>
-                    <td style="padding: 10px;">{{ appt.timeslot }}</td>
-                    <td style="padding: 10px;">
-                        <span class="car-status {% if appt.status == 'Confirmed' %}available{% else %}unavailable{% endif %}">
-                            {{ appt.status }}
-                        </span>
-                    </td>
-                    <td style="padding: 10px;">
-                        {% if appt.status != 'Cancelled' %}
-                        <form method="POST" action="{{ url_for('scheduling.cancel_appointment', appt_id=appt.apptID) }}" style="padding:0; box-shadow:none; background:none;">
-                            <button type="submit" style="background-color: #c0392b; padding: 6px 12px; font-size: 13px;">Cancel</button>
-                        </form>
-                        {% else %}
-                        <span style="color: #999;">N/A</span>
-                        {% endif %}
-                    </td>
-                </tr>
-                {% else %}
-                <tr>
-                    <td colspan="7" style="padding: 20px; text-align: center; color: #666;">No appointments found.</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-
-        <p class="schedule-footer" style="margin-top: 25px;">
-            <a href="{{ url_for('inventory.cars') }}">Back to Vehicle Inventory</a>
-        </p>
     </div>
+
+    <div class="appointments-card">
+
+        <div class="appointments-card-heading">
+            <h2>
+                {% if role == 'Employee' %}
+                    Dealership Appointments
+                {% else %}
+                    My Test Drives
+                {% endif %}
+            </h2>
+
+            <span class="appointment-count">
+                {{ appointments|length }}
+                Appointment{% if appointments|length != 1 %}s{% endif %}
+            </span>
+        </div>
+
+        {% if appointments %}
+
+        <div class="appointments-table-wrapper">
+
+            <table class="appointments-table">
+
+                <thead>
+                    <tr>
+                        <th>ID</th>
+
+                        {% if role == 'Employee' %}
+                            <th>Customer</th>
+                        {% endif %}
+
+                        <th>Vehicle</th>
+                        <th>Date</th>
+                        <th>Time</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    {% for appt in appointments %}
+
+                    <tr>
+                        <td>#{{ appt.apptID }}</td>
+
+                        {% if role == 'Employee' %}
+                            <td>{{ appt.customerName }}</td>
+                        {% endif %}
+
+                        <td class="appointment-vehicle">
+                            {{ appt.modelName }}
+                        </td>
+
+                        <td>{{ appt.date }}</td>
+
+                        <td>{{ appt.timeslot }}</td>
+
+                        <td>
+                            <span class="appointment-status
+                                {% if appt.status == 'Confirmed' %}
+                                    status-confirmed
+                                {% else %}
+                                    status-cancelled
+                                {% endif %}">
+                                {{ appt.status }}
+                            </span>
+                        </td>
+
+                        <td>
+                            {% if appt.status != 'Cancelled' %}
+
+                            <form
+                                method="POST"
+                                action="{{ url_for(
+                                    'scheduling.cancel_appointment',
+                                    appt_id=appt.apptID
+                                ) }}"
+                                class="cancel-appointment-form">
+
+                                <button type="submit"
+                                        class="cancel-appointment-button">
+                                    Cancel
+                                </button>
+
+                            </form>
+
+                            {% else %}
+
+                            <span class="cancelled-label">Cancelled</span>
+
+                            {% endif %}
+                        </td>
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+        {% else %}
+
+        <div class="appointments-empty">
+
+            <h3>No Appointments Yet</h3>
+
+            <p>
+                You don't have any scheduled test drives right now.
+                Browse our inventory to find your next vehicle.
+            </p>
+
+            {% if role != 'Employee' %}
+                <a href="{{ url_for('inventory.cars') }}" class="button">
+                    Explore Vehicles
+                </a>
+            {% endif %}
+
+        </div>
+
+        {% endif %}
+
+    </div>
+
+    <div class="appointments-footer">
+        <a href="{{ url_for('inventory.cars') }}">
+            ← Back to Vehicle Inventory
+        </a>
+    </div>
+
 </section>
+
 {% endblock %}

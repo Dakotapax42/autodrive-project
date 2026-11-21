@@ -1,130 +1,312 @@
+
+import calendar
+from datetime import date, datetime
+
 from database import get_db
-from flask import Blueprint, redirect, render_template, request, session, url_for
+from flask import (
+    Blueprint, flash, redirect, render_template,
+    request, session, url_for, abort
+)
 
 scheduling_bp = Blueprint("scheduling", __name__)
+
+TIMESLOTS = [
+    "9:00 AM",
+    "10:00 AM",
+    "11:00 AM",
+    "1:00 PM",
+    "2:00 PM",
+    "3:00 PM",
+]
 
 
 @scheduling_bp.route("/schedule/<int:car_id>", methods=["GET", "POST"])
 def schedule(car_id):
-  # 1. Check if user is logged in ('user_id' in session)
-  if "user_id" not in session:
-    return redirect(url_for("auth.login"))
 
-  conn = get_db()
-  # Fetch car details to display the modelName in the popup
-  car = conn.execute("SELECT * FROM cars WHERE carID = ?", (car_id,)).fetchone()
+    if "user_id" not in session:
+        flash("Please log in as a customer to book a test drive.", "warning")
+        return redirect(url_for("auth.login"))
 
-  error = None
-  success_data = None
+    if session.get("role") == "Employee":
+        flash("Employees cannot schedule test drives.", "danger")
+        return redirect(url_for("scheduling.view_appointments"))
 
-  if request.method == "POST":
-    # 2. Grab 'appt_date' and 'timeslot' from the form submission
-    appt_date = request.form.get("appt_date")
-    timeslot = request.form.get("timeslot")
-    user_id = session["user_id"]
+    conn = get_db()
 
-    if not appt_date or not timeslot:
-      error = "Please select both an appointment date and a timeslot."
-    else:
-      # 3. Check 'appointments' table to see if a booking already exists (Conflict Check)
-      existing_booking = conn.execute(
-          """
-              SELECT apptID FROM appointments 
-              WHERE carID = ? AND date = ? AND timeslot = ? AND status != 'Cancelled'
-          """,
-          (car_id, appt_date, timeslot),
-      ).fetchone()
+    car = conn.execute(
+        "SELECT * FROM cars WHERE carID = ?", (car_id,)
+    ).fetchone()
 
-      # 4. If conflict, return an error message
-      if existing_booking:
-        error = (
-            "This time slot is already booked for this vehicle. Please select"
-            " a different time."
+    if not car:
+        conn.close()
+        abort(404)
+
+    if car["status"] != "Available":
+        conn.close()
+        flash("This vehicle is currently unavailable.", "warning")
+        return redirect(url_for("inventory.cars"))
+
+    today = date.today()
+
+    # Determine which month to display.
+    month_value = request.values.get("month", today.strftime("%Y-%m"))
+
+    try:
+        current_month = datetime.strptime(
+            month_value, "%Y-%m"
+        ).date().replace(day=1)
+    except ValueError:
+        current_month = today.replace(day=1)
+
+    selected_date = (
+        request.form.get("appt_date")
+        or request.args.get("date", "")
+    )
+
+    error = None
+    success_data = None
+    selected_timeslot = request.form.get("timeslot", "")
+
+    # Process booking submission.
+    if request.method == "POST":
+
+        timeslot = request.form.get("timeslot", "")
+
+        try:
+            booking_date = datetime.strptime(
+                selected_date, "%Y-%m-%d"
+            ).date()
+        except ValueError:
+            booking_date = None
+
+        if not booking_date or booking_date < today:
+            error = "Please select a valid future appointment date."
+
+        elif timeslot not in TIMESLOTS:
+            error = "Please select a valid timeslot."
+
+        else:
+            existing_booking = conn.execute(
+                """
+                SELECT apptID
+                FROM appointments
+                WHERE carID = ?
+                AND date = ?
+                AND timeslot = ?
+                AND status != 'Cancelled'
+                """,
+                (car_id, selected_date, timeslot),
+            ).fetchone()
+
+            if existing_booking:
+                error = (
+                    "This time slot is already booked for this vehicle. "
+                    "Please select a different time."
+                )
+            else:
+                conn.execute(
+                    """
+                    INSERT INTO appointments
+                    (customerID, carID, date, timeslot, testDrive, status)
+                    VALUES (?, ?, ?, ?, ?, ?)
+                    """,
+                    (
+                        session["user_id"],
+                        car_id,
+                        selected_date,
+                        timeslot,
+                        1,
+                        "Confirmed",
+                    ),
+                )
+                conn.commit()
+
+                success_data = {
+                    "date": selected_date,
+                    "timeslot": timeslot,
+                    "car_name": car["modelName"],
+                }
+
+    # Get all active bookings for this vehicle in the displayed month.
+    year = current_month.year
+    month = current_month.month
+
+    last_day = calendar.monthrange(year, month)[1]
+    month_start = f"{year}-{month:02d}-01"
+    month_end = f"{year}-{month:02d}-{last_day:02d}"
+
+    bookings = conn.execute(
+        """
+        SELECT date, timeslot
+        FROM appointments
+        WHERE carID = ?
+        AND date BETWEEN ? AND ?
+        AND status != 'Cancelled'
+        """,
+        (car_id, month_start, month_end),
+    ).fetchall()
+
+    conn.close()
+
+    # Group booked times by date.
+    booked_by_date = {}
+
+    for booking in bookings:
+        booked_by_date.setdefault(booking["date"], set()).add(
+            booking["timeslot"]
         )
-      else:
-        # 5. If no conflict, INSERT the new appointment into the 'appointments' table and commit
-        conn.execute(
-            """
-                INSERT INTO appointments (customerID, carID, date, timeslot, testDrive, status)
-                VALUES (?, ?, ?, ?, ?, ?)
-            """,
-            (user_id, car_id, appt_date, timeslot, 1, "Confirmed"),
+
+    # Build the calendar.
+    calendar_rows = []
+
+    for week in calendar.Calendar(firstweekday=6).monthdayscalendar(
+        year, month
+    ):
+        calendar_week = []
+
+        for day in week:
+            if day == 0:
+                calendar_week.append(None)
+                continue
+
+            day_date = date(year, month, day)
+            date_string = day_date.isoformat()
+
+            booked_count = len(
+                booked_by_date.get(date_string, set())
+            )
+
+            if day_date < today:
+                availability = "past"
+            elif booked_count >= len(TIMESLOTS):
+                availability = "full"
+            else:
+                availability = "available"
+
+            calendar_week.append({
+                "day": day,
+                "date": date_string,
+                "availability": availability,
+                "selected": date_string == selected_date,
+            })
+
+        calendar_rows.append(calendar_week)
+
+    # Build time slot availability for the selected date.
+    slot_options = []
+
+    if selected_date:
+        booked_slots = booked_by_date.get(selected_date, set())
+
+        slot_options = [
+            {
+                "time": slot,
+                "booked": slot in booked_slots,
+                "selected": slot == selected_timeslot,
+            }
+            for slot in TIMESLOTS
+        ]
+
+    previous_month = (
+        current_month.replace(day=1)
+        .replace(
+            year=year - 1 if month == 1 else year,
+            month=12 if month == 1 else month - 1,
         )
-        conn.commit()
+    )
 
-        # Package success details for the popup bubble
-        success_data = {
-            "date": appt_date,
-            "timeslot": timeslot,
-            "car_name": car["modelName"] if car else "Selected Vehicle",
-        }
+    next_month = (
+        current_month.replace(day=1)
+        .replace(
+            year=year + 1 if month == 12 else year,
+            month=1 if month == 12 else month + 1,
+        )
+    )
 
-  conn.close()
-  return render_template(
-      "schedule.html",
-      car_id=car_id,
-      error=error,
-      success_data=success_data,
-  )
+    return render_template(
+        "schedule.html",
+        car_id=car_id,
+        car=car,
+        error=error,
+        success_data=success_data,
+        selected_date=selected_date,
+        selected_timeslot=selected_timeslot,
+        slot_options=slot_options,
+        calendar_rows=calendar_rows,
+        month_name=current_month.strftime("%B %Y"),
+        previous_month=previous_month.strftime("%Y-%m"),
+        next_month=next_month.strftime("%Y-%m"),
+        current_month=month_value,
+    )
 
 
 @scheduling_bp.route("/appointments")
 def view_appointments():
-  if "user_id" not in session:
-    return redirect(url_for("auth.login"))
 
-  user_id = session["user_id"]
-  role = session.get("role", "Customer")
-  conn = get_db()
+    if "user_id" not in session:
+        return redirect(url_for("auth.login"))
 
-  if role == "Employee":
-    # Employees see ALL appointments across all customers (Master Calendar)
-    query = """
-            SELECT a.apptID, u.username AS customerName, c.modelName, a.date, a.timeslot, a.status
+    user_id = session["user_id"]
+    role = session.get("role", "Customer")
+    conn = get_db()
+
+    if role == "Employee":
+        query = """
+            SELECT a.apptID, u.username AS customerName,
+                   c.modelName, a.date, a.timeslot, a.status
             FROM appointments a
             JOIN users u ON a.customerID = u.userID
             JOIN cars c ON a.carID = c.carID
             ORDER BY a.date, a.timeslot
         """
-    appointments = conn.execute(query).fetchall()
-  else:
-    # Customers see ONLY their own appointments
-    query = """
-            SELECT a.apptID, c.modelName, a.date, a.timeslot, a.status
+        appointments = conn.execute(query).fetchall()
+
+    else:
+        query = """
+            SELECT a.apptID, c.modelName, a.date,
+                   a.timeslot, a.status
             FROM appointments a
             JOIN cars c ON a.carID = c.carID
             WHERE a.customerID = ?
             ORDER BY a.date, a.timeslot
         """
-    appointments = conn.execute(query, (user_id,)).fetchall()
+        appointments = conn.execute(query, (user_id,)).fetchall()
 
-  conn.close()
-  return render_template(
-      "appointments.html", appointments=appointments, role=role
-  )
+    conn.close()
+
+    return render_template(
+        "appointments.html",
+        appointments=appointments,
+        role=role
+    )
 
 
 @scheduling_bp.route("/appointments/cancel/<int:appt_id>", methods=["POST"])
 def cancel_appointment(appt_id):
-  if "user_id" not in session:
-    return redirect(url_for("auth.login"))
 
-  user_id = session["user_id"]
-  role = session.get("role", "Customer")
-  conn = get_db()
+    if "user_id" not in session:
+        return redirect(url_for("auth.login"))
 
-  if role == "Employee":
-    conn.execute(
-        "UPDATE appointments SET status = 'Cancelled' WHERE apptID = ?",
-        (appt_id,),
-    )
-  else:
-    conn.execute(
-        "UPDATE appointments SET status = 'Cancelled' WHERE apptID = ? AND"
-        " customerID = ?",
-        (appt_id, user_id),
-    )
+    user_id = session["user_id"]
+    role = session.get("role", "Customer")
+    conn = get_db()
 
-  conn.commit()
-  conn.close()
-  return redirect(url_for("scheduling.view_appointments"))
+    if role == "Employee":
+        conn.execute(
+            "UPDATE appointments SET status = 'Cancelled' WHERE apptID = ?",
+            (appt_id,),
+        )
+    else:
+        conn.execute(
+            """
+            UPDATE appointments
+            SET status = 'Cancelled'
+            WHERE apptID = ? AND customerID = ?
+            """,
+            (appt_id, user_id),
+        )
+
+    conn.commit()
+    conn.close()
+
+    return redirect(url_for("scheduling.view_appointments"))
