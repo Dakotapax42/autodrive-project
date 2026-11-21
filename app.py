@@ -3,7 +3,7 @@ import secrets
 
 from flask import Flask, render_template
 
-from database import init_db
+from database import get_db, init_db
 from auth import auth_bp
 from inventory import inventory_bp
 from scheduling import scheduling_bp
