@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}AutoDrive - Inquiries{% endblock %}
+{% block content %}
+<div class="container">
+  <h1>{% if session["role"] == "Employee" %}Customer Inquiries{% else %}My Inquiries{% endif %}</h1>
+  {% for i in inquiries %}
+  <div class="inquiry">
+    <h3>{{ i["year"] }} {{ i["modelName"] }} <small>({{ i["status"] }}, {{ i["dateSubmitted"] }})</small></h3>
+    {% if session["role"] == "Employee" %}<p>From: {{ i["username"] }}</p>{% endif %}
+    <p>{{ i["message"] }}</p>
+    {% if i["response"] %}<p><strong>Reply:</strong> {{ i["response"] }}</p>{% endif %}
+    {% if session["role"] == "Employee" %}
+    <form method="POST" action="{{ url_for('inquiries.respond', inquiry_id=i['inquiryID']) }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <textarea name="response" rows="3" maxlength="2000" required>{{ i["response"] or "" }}</textarea>
+      <button type="submit">{% if i["response"] %}Update reply{% else %}Reply{% endif %}</button>
+    </form>
+    {% endif %}
+  </div>
+  {% else %}
+  <p>No inquiries yet.</p>
+  {% endfor %}
+</div>
+{% endblock %}
