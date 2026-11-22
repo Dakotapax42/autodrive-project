@@ -1,3 +1,9 @@
+"""Quick checks for the auth module (FR-01).
+
+Run with:  python -m unittest test_auth -v
+Uses a temporary database, so your real autodrive.db is never touched.
+"""
+
 import os
 import tempfile
 import unittest
@@ -12,11 +18,13 @@ def make_app():
   app.secret_key = "test-key"
 
   from inventory import inventory_bp
+  from inquiries import inquiries_bp
   from scheduling import scheduling_bp
 
   app.register_blueprint(auth.auth_bp)
   app.register_blueprint(inventory_bp)
   app.register_blueprint(scheduling_bp)
+  app.register_blueprint(inquiries_bp)
 
   # Throwaway routes to exercise the access-control decorators
   @app.route("/_any_user")
@@ -28,6 +36,10 @@ def make_app():
   @auth.role_required("Employee")
   def employee_only():
     return "ok"
+
+  @app.route("/")
+  def index():
+    return "home"
 
   return app
 
@@ -53,12 +65,12 @@ class AuthTests(unittest.TestCase):
   def test_seed_passwords_are_hashed(self):
     conn = database.get_db()
     for row in conn.execute("SELECT password FROM users"):
-      self.assertNotEqual(row["password"], "password")
+      self.assertNotIn(row["password"], ("password123", "admin123"))
       self.assertTrue(row["password"].startswith(("scrypt:", "pbkdf2:")))
     conn.close()
 
   def test_valid_login_sets_session_and_redirects(self):
-    resp = self.login("buyer1", "password")
+    resp = self.login("buyer1", "password123")
     self.assertEqual(resp.status_code, 302)
     self.assertTrue(resp.headers["Location"].endswith("/cars"))
     with self.client.session_transaction() as sess:
@@ -85,11 +97,11 @@ class AuthTests(unittest.TestCase):
     for _ in range(auth.MAX_FAILED_ATTEMPTS):
       self.login("buyer1", "wrong")
     # Even the correct password is refused while locked out
-    resp = self.login("buyer1", "password")
+    resp = self.login("buyer1", "password123")
     self.assertEqual(resp.status_code, 429)
 
   def test_logout_clears_session(self):
-    self.login("buyer1", "password")
+    self.login("buyer1", "password123")
     resp = self.client.get("/logout")
     self.assertEqual(resp.status_code, 302)
     with self.client.session_transaction() as sess:
@@ -101,11 +113,11 @@ class AuthTests(unittest.TestCase):
     self.assertTrue(resp.headers["Location"].endswith("/login"))
 
   def test_customer_blocked_from_employee_route(self):
-    self.login("buyer1", "password")
+    self.login("buyer1", "password123")
     self.assertEqual(self.client.get("/_employee_only").status_code, 403)
 
   def test_employee_allowed_on_employee_route(self):
-    self.login("employee1", "password")
+    self.login("employee1", "admin123")
     self.assertEqual(self.client.get("/_employee_only").status_code, 200)
 
   def test_session_cookie_hardening(self):
