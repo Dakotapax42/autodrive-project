@@ -780,3 +780,64 @@ a.calendar-day:hover {
 .car-info > .unavailable-button {
     margin-bottom: 14px;
 }
+
+/* Filters on the left; sorting at the bottom right */
+.inventory-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 24px;
+    margin-bottom: 16px;
+}
+
+.inventory-controls .inventory-filter-form {
+    flex: 0 1 450px;
+    width: 100%;
+    min-width: 0;
+}
+
+.inventory-sort {
+    flex: 0 1 340px;
+    min-width: 0;
+}
+
+.inventory-sort > label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+}
+
+.inventory-sort-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.inventory-sort-row select {
+    flex: 1;
+    min-width: 0;
+    width: auto;
+    margin: 0;
+}
+
+.inventory-sort-row button {
+    flex-shrink: 0;
+}
+
+/* Stack the controls on smaller screens */
+@media (max-width: 768px) {
+    .inventory-controls {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .inventory-controls .inventory-filter-form {
+        flex: none;
+        max-width: none;
+    }
+
+    .inventory-sort {
+        flex: none;
+        width: 100%;
+    }
+}
