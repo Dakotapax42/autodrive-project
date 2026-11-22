@@ -23,8 +23,10 @@
 
                 {% if session.get('role') == 'Employee' %}
                     <a href="{{ url_for('scheduling.view_appointments') }}">Master Calendar</a>
+                    <a href="{{ url_for('inquiries.list_inquiries') }}">Customer Inquiries</a>
                 {% else %}
                     <a href="{{ url_for('scheduling.view_appointments') }}">My Appointments</a>
+                    <a href="{{ url_for('inquiries.list_inquiries') }}">My Inquiries</a>
                 {% endif %}
 
                 <a href="{{ url_for('auth.logout') }}">Logout</a>

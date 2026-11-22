@@ -187,6 +187,15 @@
                     </button>
                 {% endif %}
 
+                {% if session.get('role') == 'Customer' %}
+                    <a
+                        href="{{ url_for('inquiries.new_inquiry', car_id=car.carID) }}"
+                        class="button"
+                    >
+                        Ask a Question
+                    </a>
+                {% endif %}
+
                 {% if session.get('role') == 'Employee' %}
                     <a
                         href="{{ url_for('inventory.vehicle_form', car_id=car.carID) }}"
