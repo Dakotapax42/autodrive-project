@@ -1,4 +1,3 @@
-
 from contextlib import closing
 from datetime import date
 from decimal import Decimal, InvalidOperation
@@ -68,10 +67,6 @@ def cars():
         if value:
             query += f" AND {column} = ?"
             parameters.append(value)
-
-    if category:
-        query += " AND category = ?"
-        parameters.append(category)
 
     query += " ORDER BY modelName COLLATE NOCASE, carID"
 
