@@ -1,4 +1,3 @@
-
 import calendar
 from datetime import date, datetime
 
@@ -48,7 +47,16 @@ def schedule(car_id):
 
     today = date.today()
 
-    # Determine which month to display.
+    # Allowed booking window: current month and one month ahead.
+    min_month = today.replace(day=1)
+    max_month = min_month.replace(
+        year=min_month.year + 1 if min_month.month == 12 else min_month.year,
+        month=1 if min_month.month == 12 else min_month.month + 1,
+    )
+    max_booking_day = calendar.monthrange(max_month.year, max_month.month)[1]
+    max_booking_date = date(max_month.year, max_month.month, max_booking_day)
+
+    # Determine which month to display, clamped to [min_month, max_month].
     month_value = request.values.get("month", today.strftime("%Y-%m"))
 
     try:
@@ -58,10 +66,25 @@ def schedule(car_id):
     except ValueError:
         current_month = today.replace(day=1)
 
+    if current_month < min_month:
+        current_month = min_month
+    elif current_month > max_month:
+        current_month = max_month
+
     selected_date = (
         request.form.get("appt_date")
         or request.args.get("date", "")
     )
+
+    if selected_date:
+        try:
+            parsed_selected = datetime.strptime(
+                selected_date, "%Y-%m-%d"
+            ).date()
+            if parsed_selected < today or parsed_selected > max_booking_date:
+                selected_date = ""
+        except ValueError:
+            selected_date = ""
 
     error = None
     success_data = None
@@ -79,8 +102,15 @@ def schedule(car_id):
         except ValueError:
             booking_date = None
 
-        if not booking_date or booking_date < today:
-            error = "Please select a valid future appointment date."
+        if (
+            not booking_date
+            or booking_date < today
+            or booking_date > max_booking_date
+        ):
+            error = (
+                f"Please select a valid date between {today.isoformat()} "
+                f"and {max_booking_date.isoformat()}."
+            )
 
         elif timeslot not in TIMESLOTS:
             error = "Please select a valid timeslot."
@@ -178,6 +208,8 @@ def schedule(car_id):
 
             if day_date < today:
                 availability = "past"
+            elif day_date > max_booking_date:
+                availability = "unavailable"
             elif booked_count >= len(TIMESLOTS):
                 availability = "full"
             else:
@@ -208,19 +240,21 @@ def schedule(car_id):
         ]
 
     previous_month = (
-        current_month.replace(day=1)
-        .replace(
+        None
+        if current_month <= min_month
+        else current_month.replace(
             year=year - 1 if month == 1 else year,
             month=12 if month == 1 else month - 1,
-        )
+        ).strftime("%Y-%m")
     )
 
     next_month = (
-        current_month.replace(day=1)
-        .replace(
+        None
+        if current_month >= max_month
+        else current_month.replace(
             year=year + 1 if month == 12 else year,
             month=1 if month == 12 else month + 1,
-        )
+        ).strftime("%Y-%m")
     )
 
     return render_template(
@@ -234,9 +268,9 @@ def schedule(car_id):
         slot_options=slot_options,
         calendar_rows=calendar_rows,
         month_name=current_month.strftime("%B %Y"),
-        previous_month=previous_month.strftime("%Y-%m"),
-        next_month=next_month.strftime("%Y-%m"),
-        current_month=month_value,
+        previous_month=previous_month,
+        next_month=next_month,
+        current_month=current_month.strftime("%Y-%m"),
     )
 
 
