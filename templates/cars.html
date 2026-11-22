@@ -13,7 +13,13 @@
     <p role="status">{{ message }}</p>
 {% endfor %}
 
-<form method="get" action="{{ url_for('inventory.cars') }}">
+<div class="inventory-controls">
+    <form
+        id="inventory-filter-form"
+        class="inventory-filter-form"
+        method="get"
+        action="{{ url_for('inventory.cars') }}"
+    >
     <label>
         Vehicle name
         <input
@@ -51,7 +57,46 @@
     <a href="{{ url_for('inventory.cars') }}">
         Clear filters
     </a>
-</form>
+
+    </form>
+
+    <div class="inventory-sort">
+        <label for="inventory-sort-select">Sort by</label>
+
+        <div class="inventory-sort-row">
+            <select
+                id="inventory-sort-select"
+                name="sort"
+                form="inventory-filter-form"
+            >
+                {% for value, label in [
+                    ('name_asc', 'Name: A to Z'),
+                    ('name_desc', 'Name: Z to A'),
+                    ('price_asc', 'Price: Low to High'),
+                    ('price_desc', 'Price: High to Low'),
+                    ('mileage_asc', 'Mileage: Low to High'),
+                    ('mileage_desc', 'Mileage: High to Low'),
+                    ('year_desc', 'Year: Newest First'),
+                    ('year_asc', 'Year: Oldest First')
+                ] %}
+                    <option
+                        value="{{ value }}"
+                        {% if sort == value %}selected{% endif %}
+                    >
+                        {{ label }}
+                    </option>
+                {% endfor %}
+            </select>
+
+            <button
+                type="submit"
+                form="inventory-filter-form"
+            >
+                Sort
+            </button>
+        </div>
+    </div>
+</div>
 
 <p>
     {{ cars|length }}
