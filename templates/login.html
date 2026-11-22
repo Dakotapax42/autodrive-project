@@ -1,4 +1,3 @@
-
 {% extends "base.html" %}
 
 {% block title %}AutoDrive - Login{% endblock %}
@@ -52,9 +51,12 @@
             <a href="{{ url_for('index') }}">Return to Home</a>
         </p>
 
+        <p class="login-footer">
+            <a href="{{ url_for('auth.forgot_password') }}">Forgot password?</a>
+        </p>
+
     </div>
 
 </div>
 
 {% endblock %}
-

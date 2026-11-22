@@ -187,7 +187,9 @@ def _hash_token(token):
 
 def _rate_limited(client):
   now = time.time()
-  recent = [t for t in _reset_requests.get(client, []) if now - t < RESET_WINDOW_SECONDS]
+  recent = [
+      t for t in _reset_requests.get(client, []) if now - t < RESET_WINDOW_SECONDS
+  ]
   limited = len(recent) >= MAX_RESET_REQUESTS
   if not limited:
     recent.append(now)
@@ -235,8 +237,11 @@ def forgot_password():
       conn.execute(
           "INSERT INTO password_resets (userID, tokenHash, expiresAt) "
           "VALUES (?, ?, ?)",
-          (user["userID"], _hash_token(token),
-           time.time() + RESET_TOKEN_MINUTES * 60),
+          (
+              user["userID"],
+              _hash_token(token),
+              time.time() + RESET_TOKEN_MINUTES * 60,
+          ),
       )
       conn.commit()
       link = url_for("auth.reset_password", token=token, _external=True)
