@@ -35,6 +35,7 @@ autodrive-project/
 ├── inventory.py           # Inventory management blueprint module
 ├── scheduling.py          # Appointment scheduling blueprint module
 ├── autodrive.db           # SQLite database instance (git ignored)
+├── test_auth.db           # Testing authentication implementations
 └── README.md              # Project documentation
 ```
 
