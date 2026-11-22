@@ -295,3 +295,31 @@ def remove_vehicle(car_id):
             flash("Vehicle removed.")
 
     return redirect(url_for("inventory.cars"))
+
+# Pick random vehicles for the landing page's featured section.
+def get_featured_cars(limit=1):
+    with closing(get_db()) as conn:
+        rows = conn.execute(
+            f"""
+            SELECT {COLUMNS}
+            FROM cars
+            WHERE status = 'Available'
+            ORDER BY RANDOM()
+            LIMIT ?
+            """,
+            (limit,),
+        ).fetchall()
+
+        # Fall back to any vehicle if none are marked Available.
+        if not rows:
+            rows = conn.execute(
+                f"""
+                SELECT {COLUMNS}
+                FROM cars
+                ORDER BY RANDOM()
+                LIMIT ?
+                """,
+                (limit,),
+            ).fetchall()
+
+    return rows

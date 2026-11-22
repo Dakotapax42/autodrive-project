@@ -1,4 +1,3 @@
-
 {% extends "base.html" %}
 
 {% block title %}AutoDrive - Find Your Next Vehicle{% endblock %}
@@ -27,14 +26,6 @@
             </a>
         </div>
     </div>
-
-    {% if featured_cars %}
-    <div class="hero-image">
-        <img
-            src="{{ url_for('static', filename=featured_cars[0].image) }}"
-            alt="{{ featured_cars[0].modelName }}">
-    </div>
-    {% endif %}
 
 </section>
 
@@ -85,11 +76,7 @@
 
     </div>
 
-    <div class="featured-footer">
-        <a href="{{ url_for('inventory.cars') }}" class="button">
-            View All Vehicles
-        </a>
-    </div>
+
 
 </section>
 
@@ -132,4 +119,3 @@
 </section>
 
 {% endblock %}
-

@@ -5,7 +5,7 @@ from flask import Flask, render_template
 
 from database import init_db
 from auth import auth_bp
-from inventory import inventory_bp
+from inventory import inventory_bp, get_featured_cars
 from scheduling import scheduling_bp
 
 app = Flask(__name__)
@@ -23,7 +23,8 @@ app.register_blueprint(scheduling_bp)
 @app.route("/")
 def index():
   # Basic landing page route
-  return render_template("index.html")
+  featured_cars = get_featured_cars(limit=1)
+  return render_template("index.html", featured_cars=featured_cars)
 
 
 if __name__ == "__main__":
