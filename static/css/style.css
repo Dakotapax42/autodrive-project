@@ -366,6 +366,20 @@ footer {
     border-radius: 10px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
     transition: transform 0.2s;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.car-info {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+.car-info > .button,
+.car-info > .unavailable-button {
+    margin-top: auto;
 }
 
 .car-card:hover {
@@ -375,6 +389,15 @@ footer {
 .car-info h2 {
     margin-bottom: 15px;
     color: #14243a;
+    min-height: 2.5em; /* Reserve space for up to 2 lines so titles don't shift rows below */
+}
+
+.car-details,
+.car-specs,
+.car-price,
+.car-status {
+    margin-bottom: 10px;
+    overflow-wrap: anywhere; /* Keeps each spec line on a single line */
 }
 
 .car-category {
