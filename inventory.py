@@ -68,7 +68,25 @@ def cars():
             query += f" AND {column} = ?"
             parameters.append(value)
 
-    query += " ORDER BY modelName COLLATE NOCASE, carID"
+        # Only allow these predefined sorting options.
+    sort_options = {
+        "name_asc": "modelName COLLATE NOCASE ASC, carID",
+        "name_desc": "modelName COLLATE NOCASE DESC, carID",
+        "price_asc": "price IS NULL, price ASC, carID",
+        "price_desc": "price IS NULL, price DESC, carID",
+        "mileage_asc": "mileage IS NULL, mileage ASC, carID",
+        "mileage_desc": "mileage IS NULL, mileage DESC, carID",
+        "year_desc": "year IS NULL, year DESC, carID",
+        "year_asc": "year IS NULL, year ASC, carID",
+    }
+
+    sort = request.args.get("sort", "name_asc")
+
+    # Fall back to alphabetical order for an invalid option.
+    if sort not in sort_options:
+        sort = "name_asc"
+
+    query += " ORDER BY " + sort_options[sort]
 
     with closing(get_db()) as conn:
         car_list = conn.execute(query, parameters).fetchall()
@@ -99,6 +117,7 @@ def cars():
         search=search,
         filters=filters,
         choices=choices,
+        sort=sort,
     )
 
 
