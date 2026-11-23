@@ -6,6 +6,7 @@ from flask import (
     Blueprint, flash, redirect, render_template,
     request, session, url_for, abort
 )
+from notifications import notify_booking_confirmed, notify_booking_cancelled
 
 scheduling_bp = Blueprint("scheduling", __name__)
 
@@ -47,7 +48,6 @@ def schedule(car_id):
 
     today = date.today()
 
-    # Allowed booking window: current month and one month ahead.
     min_month = today.replace(day=1)
     max_month = min_month.replace(
         year=min_month.year + 1 if min_month.month == 12 else min_month.year,
@@ -56,7 +56,6 @@ def schedule(car_id):
     max_booking_day = calendar.monthrange(max_month.year, max_month.month)[1]
     max_booking_date = date(max_month.year, max_month.month, max_booking_day)
 
-    # Determine which month to display, clamped to [min_month, max_month].
     month_value = request.values.get("month", today.strftime("%Y-%m"))
 
     try:
@@ -90,7 +89,6 @@ def schedule(car_id):
     success_data = None
     selected_timeslot = request.form.get("timeslot", "")
 
-    # Process booking submission.
     if request.method == "POST":
 
         timeslot = request.form.get("timeslot", "")
@@ -134,7 +132,7 @@ def schedule(car_id):
                     "Please select a different time."
                 )
             else:
-                conn.execute(
+                cursor = conn.execute(
                     """
                     INSERT INTO appointments
                     (customerID, carID, date, timeslot, testDrive, status)
@@ -150,6 +148,15 @@ def schedule(car_id):
                     ),
                 )
                 conn.commit()
+                appt_id = cursor.lastrowid
+
+                notify_booking_confirmed(
+                    appt_id=appt_id,
+                    customer_id=session["user_id"],
+                    car_name=car["modelName"],
+                    appt_date=selected_date,
+                    timeslot=timeslot,
+                )
 
                 success_data = {
                     "date": selected_date,
@@ -157,7 +164,6 @@ def schedule(car_id):
                     "car_name": car["modelName"],
                 }
 
-    # Get all active bookings for this vehicle in the displayed month.
     year = current_month.year
     month = current_month.month
 
@@ -178,7 +184,6 @@ def schedule(car_id):
 
     conn.close()
 
-    # Group booked times by date.
     booked_by_date = {}
 
     for booking in bookings:
@@ -186,7 +191,6 @@ def schedule(car_id):
             booking["timeslot"]
         )
 
-    # Build the calendar.
     calendar_rows = []
 
     for week in calendar.Calendar(firstweekday=6).monthdayscalendar(
@@ -224,7 +228,6 @@ def schedule(car_id):
 
         calendar_rows.append(calendar_week)
 
-    # Build time slot availability for the selected date.
     slot_options = []
 
     if selected_date:
@@ -325,13 +328,27 @@ def cancel_appointment(appt_id):
     role = session.get("role", "Customer")
     conn = get_db()
 
+    appt = conn.execute(
+        """
+        SELECT a.customerID, a.date, a.timeslot, c.modelName
+        FROM appointments a
+        JOIN cars c ON a.carID = c.carID
+        WHERE a.apptID = ?
+        """,
+        (appt_id,),
+    ).fetchone()
+
+    if not appt:
+        conn.close()
+        return redirect(url_for("scheduling.view_appointments"))
+
     if role == "Employee":
-        conn.execute(
+        cursor = conn.execute(
             "UPDATE appointments SET status = 'Cancelled' WHERE apptID = ?",
             (appt_id,),
         )
     else:
-        conn.execute(
+        cursor = conn.execute(
             """
             UPDATE appointments
             SET status = 'Cancelled'
@@ -342,5 +359,14 @@ def cancel_appointment(appt_id):
 
     conn.commit()
     conn.close()
+
+    if cursor.rowcount > 0:
+        notify_booking_cancelled(
+            appt_id=appt_id,
+            customer_id=appt["customerID"],
+            car_name=appt["modelName"],
+            appt_date=appt["date"],
+            timeslot=appt["timeslot"],
+        )
 
     return redirect(url_for("scheduling.view_appointments"))
