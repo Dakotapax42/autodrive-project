@@ -21,9 +21,11 @@
                 Explore Inventory
             </a>
 
-            <a href="{{ url_for('auth.login') }}" class="button hero-secondary">
-                Sign In
-            </a>
+           {% if not session.get('user_id') %}
+        <a href="{{ url_for('auth.login') }}" class="button hero-secondary">
+            Sign In
+        </a>
+        {% endif %}
         </div>
     </div>
 
