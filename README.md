@@ -15,28 +15,40 @@ The system uses a 3-Tier layered modular blueprint structure to maintain separat
 ---
 ## Repository Structure
 
+## Repository Structure
+
 ```text
 autodrive-project/
-├── .venv/
-├── static/                # Static assets directory
-│   └── style.css          # Global CSS stylesheet for UI styling & layouts
-│   └── images/            # Car images for vehicle browsing    
-├── templates/             # Jinja2 HTML Templates
-│   ├── base.html          # Master layout template (nav, footer, & blocks)
-│   ├── index.html         # Landing page view
-│   ├── login.html         # User authentication form
-│   ├── cars.html          # Vehicle inventory list
-│   ├── schedule.html      # Test drive booking form
-│   └── appointments.html  # Appointment management & master calendar view
-├── .gitignore             # Git ignore configuration
-├── app.py                 # Main Flask application and blueprint registration
-├── auth.py                # Authentication blueprint module
-├── database.py            # SQLite configuration and schema initializers
-├── inventory.py           # Inventory management blueprint module
-├── scheduling.py          # Appointment scheduling blueprint module
-├── autodrive.db           # SQLite database instance (git ignored)
-├── test_auth.db           # Testing authentication implementations
-└── README.md              # Project documentation
+├── .venv/                      # Local Python Virtual Environment (git ignored)
+├── static/                     # Static assets directory
+│   ├── css/
+│   │   └── style.css           # Global CSS stylesheet for UI styling & layouts
+│   └── images/                 # Vehicle and UI image assets
+├── templates/                  # Jinja2 HTML Templates
+│   ├── appointments.html       # Appointment management & master calendar view
+│   ├── base.html               # Master layout template (navigation & footer)
+│   ├── cars.html               # Vehicle inventory list
+│   ├── forgot_password.html    # Password recovery request view
+│   ├── index.html              # Landing page view
+│   ├── inquiries.html          # Customer inquiries overview
+│   ├── inquiry_form.html       # Inquiry submission form
+│   ├── login.html              # User authentication form
+│   ├── reset_password.html     # Password reset view
+│   ├── schedule.html           # Test drive booking form
+│   └── vehicle_form.html       # Vehicle form view
+├── .gitattributes              # Git attributes configuration
+├── .gitignore                  # Configured to ignore .venv/ and local DBs
+├── app.py                      # Main Flask driver script & Blueprint registration
+├── auth.py                     # Authentication blueprint module
+├── database.py                 # SQLite configuration and schema initializers
+├── inquiries.py                # Inquiries module
+├── inventory.py                # Inventory management blueprint module
+├── notifications.py            # Notifications module
+├── scheduling.py               # Appointment scheduling blueprint module
+├── test_auth.py                # Authentication tests
+├── test_inquiries_reset.py     # Inquiries and password reset tests
+├── autodrive.db                # SQLite local database instance (git ignored)
+└── README.md                   # Project documentation
 ```
 
 ---
