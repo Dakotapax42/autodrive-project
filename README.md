@@ -15,8 +15,6 @@ The system uses a 3-Tier layered modular blueprint structure to maintain separat
 ---
 ## Repository Structure
 
-## Repository Structure
-
 ```text
 autodrive-project/
 ├── .venv/                      # Local Python Virtual Environment (git ignored)
