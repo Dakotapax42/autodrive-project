@@ -1,7 +1,13 @@
 # AutoDrive Platform (MVP)
 
-AutoDrive is a modular Flask web application designed for vehicle inventory management, user authentication, and test drive appointment scheduling. The project uses Python, Flask Blueprints, and an embedded SQLite database.
+## Overview & Design Philosophy
 
+Traditional dealerships often run digital car listings and physical lot schedules in silos, leading to double-bookings and a frustrating experience for buyers and employees alike. **AutoDrive** unifies online inventory browsing with real-time test drive scheduling in a modular Flask and SQLite application.
+
+* **3-Tier Modularity:** Separates frontend templates, Flask Blueprint controllers, and SQLite data management so team members can build and test independently.
+* **Database-Enforced Integrity:** Relies on foreign key constraints, unique time-slot validations, and SQL-injection-resistant queries rather than frontend checks alone.
+* **Security by Design:** Uses salted and hashed credentials alongside role-based access (customers vs. employees) and isolates payment records in a dedicated `pay_info` table.
+* **Core Capabilities:** Includes user profile management, 20 pre-seeded vehicle models, conflict-validated bookings, and support for customer inquiries, availability management, and notification system.
 ---
 ## Project Architecture and Team Roles
 
