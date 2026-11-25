@@ -9,15 +9,16 @@ Traditional dealerships often run digital car listings and physical lot schedule
 * **Security by Design:** Uses salted and hashed credentials alongside role-based access (customers vs. employees) and isolates payment records in a dedicated `pay_info` table.
 * **Core Capabilities:** Includes user profile management, 20 pre-seeded vehicle models, conflict-validated bookings, and support for customer inquiries, availability management, and notification system.
 ---
-## Project Architecture and Team Roles
+## Project Architecture & Team Roles
 
-The system uses a 3-Tier layered modular blueprint structure to maintain separation of concerns across application components:
+Using a 3-Tier layered structure with Flask Blueprints keeps frontend views, backend routes/logic, and SQLite data persistence isolated so the team can build and integrate cleanly:
 
-* **Architecture and System Integration Lead (Dakota Paxton):** Application entry point (`app.py`), database setup (`database.py`), virtual environment configuration, and core system integration.
-* **Authentication Lead (Thomas):** User login, session management, and logout logic (`auth.py`).
-* **Inventory Lead (Abahoor):** Vehicle inventory browsing and database query management (`inventory.py`).
-* **Scheduling Lead (Ting):** Test drive reservation logic and appointment conflict checking (`scheduling.py`).
-* **Frontend Lead (Jonathan):** HTML structure, user interfaces, and Jinja2 templates (`templates/`).
+- **Project Manager, Architecture & Database Lead (Dakota Paxton):** Application entry point (`app.py`), database initialization and local SQLite setup (`database.py` / `autodrive.db`), repository coordination, documentation, and system integration.
+- **Authentication & Inquiries Lead (Thomas):** User authentication, session management, password reset (`auth.py`), and customer inquiry messaging (`inquiries.py`).
+- **Inventory Lead (Abahoor):** Vehicle catalog browsing, search/filtering, and inventory logic (`inventory.py`).
+- **Scheduling & Notifications Lead (Ting):** Test drive appointment booking, time-slot conflict validation (`scheduling.py`), and booking notifications (`notifications.py`).
+- **Frontend Lead (Jonathan):** HTML structure, styling, and Jinja2 templates (`templates/`).
+
 ---
 ## Repository Structure
 
